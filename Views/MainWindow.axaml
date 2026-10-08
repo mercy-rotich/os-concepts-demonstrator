@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels"
+        xmlns:views="using:OS_Concepts_Demonstrator.Views"
+        xmlns:dashboard="using:OS_Concepts_Demonstrator.Views.Dashboard"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="OS_Concepts_Demonstrator.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="OS Concepts Demonstrator"
+        Width="1200"
+        Height="750"
+        MinWidth="1000"
+        MinHeight="600">
+
+    <Grid ColumnDefinitions="240,*">
+
+        <!-- Sidebar -->
+        <views:NavigationView Grid.Column="0"/>
+
+        <!-- Main Content -->
+        <Border Grid.Column="1"
+                Background="#101018">
+
+            <dashboard:DashboardView DataContext="{Binding Dashboard}"/>
+
+        </Border>
+
+    </Grid>
+
+</Window>

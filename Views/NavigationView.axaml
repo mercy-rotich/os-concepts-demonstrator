@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="OS_Concepts_Demonstrator.Views.NavigationView">
+
+    <Border Background="#151521"
+            Width="240">
+
+        <StackPanel Margin="20"
+                    Spacing="10">
+
+            <TextBlock Text="OS CONCEPTS"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0,10,0,25"/>
+
+            <Button Content="Dashboard"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="Process Management"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="Memory Management"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="File &amp; Storage"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="I/O Management"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="Interprocess Communication"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="OS Services"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="Accounting"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="Audit"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+            <Button Content="OS APIs"
+                    HorizontalContentAlignment="Left"
+                    Padding="15"/>
+
+        </StackPanel>
+
+    </Border>
+
+</UserControl>

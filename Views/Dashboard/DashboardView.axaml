@@ -1,0 +1,230 @@
+
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Dashboard"
+             mc:Ignorable="d"
+             x:Class="OS_Concepts_Demonstrator.Views.Dashboard.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="30" Spacing="25">
+
+            <!-- Header -->
+            <StackPanel Spacing="5">
+                <TextBlock Text="System Overview"
+                           FontSize="30"
+                           FontWeight="Bold"/>
+
+                <TextBlock Text="Monitor and explore operating system concepts"
+                           FontSize="15"
+                           Opacity="0.65"/>
+            </StackPanel>
+
+            <!-- System Information -->
+            <Grid ColumnDefinitions="*,*,*"
+                  ColumnSpacing="15">
+
+                <!-- Operating System -->
+                <Border Grid.Column="0"
+                        Background="#1E1E2E"
+                        CornerRadius="12"
+                        Padding="20">
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="OPERATING SYSTEM"
+                                   FontSize="12"
+                                   Opacity="0.6"/>
+
+                        <TextBlock Text="{Binding OperatingSystem}"
+                                   FontSize="20"
+                                   FontWeight="Bold"/>
+                    </StackPanel>
+
+                </Border>
+
+                <!-- Processor -->
+                <Border Grid.Column="1"
+                        Background="#1E1E2E"
+                        CornerRadius="12"
+                        Padding="20">
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="PROCESSOR"
+                                   FontSize="12"
+                                   Opacity="0.6"/>
+
+                        <TextBlock Text="{Binding Processor}"
+                                   FontSize="20"
+                                   FontWeight="Bold"/>
+                    </StackPanel>
+
+                </Border>
+
+                <!-- Memory -->
+                <Border Grid.Column="2"
+                        Background="#1E1E2E"
+                        CornerRadius="12"
+                        Padding="20">
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="MEMORY"
+                                   FontSize="12"
+                                   Opacity="0.6"/>
+
+                        <TextBlock Text="{Binding Memory}"
+                                   FontSize="20"
+                                   FontWeight="Bold"/>
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <!-- OS Concepts -->
+            <StackPanel Spacing="15">
+
+                <TextBlock Text="OS Concepts"
+                           FontSize="22"
+                           FontWeight="Bold"/>
+
+                <Grid ColumnDefinitions="*,*,*"
+                      RowDefinitions="Auto,Auto"
+                      ColumnSpacing="15"
+                      RowSpacing="15">
+
+                    <Border Grid.Row="0"
+                            Grid.Column="0"
+                            Background="#1E1E2E"
+                            CornerRadius="12"
+                            Padding="20">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="⚙"
+                                       FontSize="25"/>
+
+                            <TextBlock Text="Process Management"
+                                       FontSize="17"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="Manage and monitor running processes."
+                                       TextWrapping="Wrap"
+                                       Opacity="0.65"/>
+                        </StackPanel>
+
+                    </Border>
+
+                    <Border Grid.Row="0"
+                            Grid.Column="1"
+                            Background="#1E1E2E"
+                            CornerRadius="12"
+                            Padding="20">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="▣"
+                                       FontSize="25"/>
+
+                            <TextBlock Text="Memory Management"
+                                       FontSize="17"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="Explore memory allocation and usage."
+                                       TextWrapping="Wrap"
+                                       Opacity="0.65"/>
+                        </StackPanel>
+
+                    </Border>
+
+                    <Border Grid.Row="0"
+                            Grid.Column="2"
+                            Background="#1E1E2E"
+                            CornerRadius="12"
+                            Padding="20">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="▤"
+                                       FontSize="25"/>
+
+                            <TextBlock Text="File Management"
+                                       FontSize="17"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="Interact with files and storage."
+                                       TextWrapping="Wrap"
+                                       Opacity="0.65"/>
+                        </StackPanel>
+
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Grid.Column="0"
+                            Background="#1E1E2E"
+                            CornerRadius="12"
+                            Padding="20">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="↔"
+                                       FontSize="25"/>
+
+                            <TextBlock Text="I/O Management"
+                                       FontSize="17"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="Explore input and output operations."
+                                       TextWrapping="Wrap"
+                                       Opacity="0.65"/>
+                        </StackPanel>
+
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Grid.Column="1"
+                            Background="#1E1E2E"
+                            CornerRadius="12"
+                            Padding="20">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="⇄"
+                                       FontSize="25"/>
+
+                            <TextBlock Text="Interprocess Communication"
+                                       FontSize="17"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="See how processes communicate."
+                                       TextWrapping="Wrap"
+                                       Opacity="0.65"/>
+                        </StackPanel>
+
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Grid.Column="2"
+                            Background="#1E1E2E"
+                            CornerRadius="12"
+                            Padding="20">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="◉"
+                                       FontSize="25"/>
+
+                            <TextBlock Text="OS Services"
+                                       FontSize="17"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="Explore services provided by the OS."
+                                       TextWrapping="Wrap"
+                                       Opacity="0.65"/>
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
+
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>

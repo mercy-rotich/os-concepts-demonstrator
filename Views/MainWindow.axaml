@@ -17,13 +17,14 @@
     <Grid ColumnDefinitions="240,*">
 
         <!-- Sidebar -->
-        <views:NavigationView Grid.Column="0"/>
+       <views:NavigationView Grid.Column="0"
+                      DataContext="{Binding}"/>
 
         <!-- Main Content -->
         <Border Grid.Column="1"
                 Background="#101018">
 
-            <dashboard:DashboardView DataContext="{Binding Dashboard}"/>
+            <ContentControl Content="{Binding CurrentViewModel}"/>
 
         </Border>
 

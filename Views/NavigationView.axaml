@@ -15,11 +15,13 @@
 
             <Button Content="Dashboard"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnDashboardClick"/>
 
             <Button Content="Process Management"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnProcessesClick"/>
 
             <Button Content="Memory Management"
                     HorizontalContentAlignment="Left"

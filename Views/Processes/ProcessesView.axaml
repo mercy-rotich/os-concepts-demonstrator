@@ -1,0 +1,110 @@
+
+<UserControl
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Processes"
+    x:Class="OS_Concepts_Demonstrator.Views.Processes.ProcessesView"
+    x:DataType="vm:ProcessesViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32" Spacing="24">
+
+            <StackPanel Spacing="6">
+                <TextBlock
+                    Text="Process Management"
+                    FontSize="28"
+                    FontWeight="Bold"/>
+
+                <TextBlock
+                    Text="Explore the processes currently running on your system."
+                    FontSize="14"
+                    Opacity="0.7"/>
+            </StackPanel>
+
+            <Border
+                Background="#1B1B2B"
+                CornerRadius="12"
+                Padding="20">
+
+                <StackPanel Spacing="16">
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="4">
+                            <TextBlock
+                                Text="Running Processes"
+                                FontSize="20"
+                                FontWeight="SemiBold"/>
+
+                            <TextBlock
+                                Text="{Binding Processes.Count, StringFormat='Total processes: {0}'}"
+                                FontSize="13"
+                                Opacity="0.7"/>
+                        </StackPanel>
+
+                        <Button
+                            Grid.Column="1"
+                            Content="Refresh"
+                            Padding="16,8"
+                            VerticalAlignment="Center"
+                            Click="OnRefreshClick"/>
+                    </Grid>
+
+                <Border Background="#292940" Padding="12">
+                    <Grid ColumnDefinitions="100,*,150">
+
+                        <TextBlock 
+                            Text="PID" 
+                            FontWeight="Bold"/>
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="Process Name"
+                            FontWeight="Bold"/>
+
+                        <TextBlock
+                            Grid.Column="2"
+                            Text="Memory (MB)"
+                            FontWeight="Bold"
+                            HorizontalAlignment="Right"/>
+
+                    </Grid>
+              </Border>
+
+                    <ItemsControl ItemsSource="{Binding Processes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:ProcessInfoModel">
+                                <Border
+                                    BorderBrush="#303044"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="12,14">
+
+                                    <Grid ColumnDefinitions="100,*,150">
+
+                                        <TextBlock
+                                            Text="{Binding ProcessId}"
+                                            VerticalAlignment="Center"/>
+
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Text="{Binding Name}"
+                                            VerticalAlignment="Center"
+                                            TextTrimming="CharacterEllipsis"/>
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Text="{Binding MemoryUsageMb, StringFormat='{}{0:F1}'}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"/>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -7,7 +7,7 @@ using OS_Concepts_Demonstrator.Services;
 
 namespace OS_Concepts_Demonstrator.ViewModels.Dashboard;
 
-    public partial class DashboardViewModel : ObservableObject
+    public partial class DashboardViewModel : ViewModelBase
     {
         private readonly SystemInformationService _systemInformationService;
 

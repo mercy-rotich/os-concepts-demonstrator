@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Globalization;
+using OS_Concepts_Demonstrator.Models;
 using System.Runtime.InteropServices;
 
 namespace OS_Concepts_Demonstrator.Services;
@@ -39,49 +41,60 @@ namespace OS_Concepts_Demonstrator.Services;
             return Environment.MachineName;
         }
 
-
-
-        public string GetMemoryInformation()
+        public MemoryInfoModel GetMemoryInfo()
         {
-            const string memoryInfoFilePath = "/proc/meminfo";
+            const string memInfoFilePath = "/proc/meminfo";
 
-            if (!File.Exists(memoryInfoFilePath))
+            long totalKb = 0;
+            long availableKb = 0;
+
+            foreach (string line in File.ReadLines(memInfoFilePath))
             {
-                return "Memory information not available";
-            }
+                string[] parts = line.Split(
+                    ':',
+                    StringSplitOptions.TrimEntries);
 
-            long totalMemory = 0;
-            long availableMemory = 0;
+                if (parts.Length < 2)
+            
+                    continue;
+                
 
-            foreach (string line in File.ReadLines(memoryInfoFilePath))
-            {
-                if (line.StartsWith("MemTotal:"))
+                string value = parts[1].Split(
+                    ' ',
+                    StringSplitOptions.RemoveEmptyEntries)[0];
+
+                if (parts[0] == "MemTotal")
                 {
-                    string[] parts = line.Split(
-                        ':', 
-                    StringSplitOptions.RemoveEmptyEntries);
-
-                    totalMemory = long.Parse(
-                        parts[1].Trim().Split(' ')[0]);
-
-                    
+                    totalKb = long.Parse(value, CultureInfo.InvariantCulture);
                 }
-                if (line.StartsWith("MemAvailable:"))
+                else if (parts[0] == "MemAvailable")
                 {
-                    string[] parts = line.Split(
-                        ':', 
-                    StringSplitOptions.RemoveEmptyEntries);
-
-                   availableMemory = long.Parse(
-                        parts[1].Trim().Split(' ')[0]);
+                    availableKb = long.Parse(value, CultureInfo.InvariantCulture);
                 }
+
+            if (totalKb > 0 && availableKb > 0)
+                
+                    break;
                 
             }
 
-            double totalGb = totalMemory / 1024.0 / 1024.0;
-            double availableGb = availableMemory / 1024.0 / 1024.0;
-            double usedGb = totalGb - availableGb;
+            if (totalKb <= 0 || availableKb <= 0)
+            {
+                throw new InvalidOperationException(
+                    "Unable to retrieve memory information.");
+            }
 
-            return $"{usedGb:F2} GB/{totalGb:F2} GB";
+            double totalGb = totalKb / 1024.0 / 1024.0;
+            double availableGb = availableKb / 1024.0 / 1024.0;
+            double usedGb = totalGb - availableGb;
+            double usedPercentage = (usedGb / totalGb) * 100.0;
+
+            return new MemoryInfoModel
+            {
+                TotalGb = totalGb,
+                AvailableGb = availableGb,
+                UsedGb = usedGb,
+                UsedPercentage = usedPercentage
+            };
         }
     }

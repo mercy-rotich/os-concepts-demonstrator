@@ -76,6 +76,22 @@
                         <TextBlock Text="{Binding Memory}"
                                    FontSize="20"
                                    FontWeight="Bold"/>
+
+                        <ProgressBar Minimum="0"
+                                     Maximum="100"
+                                     Value="{Binding MemoryUsedPercentage}"
+                                     Height="8"
+                                     Margin="0,12,0,0"/>
+                                     
+             
+
+                        <TextBlock Text="{Binding MemoryUsageLabel}"
+                                    FontSize="13"
+                                    Opacity="0.75"
+                                    Margin="0,6,0,0"/>
+   
+
+                                   
                     </StackPanel>
 
                 </Border>

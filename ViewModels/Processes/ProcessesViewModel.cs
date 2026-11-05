@@ -19,6 +19,9 @@ namespace OS_Concepts_Demonstrator.ViewModels.Processes;
 
         public ObservableCollection<ProcessInfoModel> Processes { get; } = new();
 
+        [ObservableProperty]
+        private ProcessInfoModel? selectedProcess;
+
         // The text entered by the user in the search box.
         [ObservableProperty]
         private string searchText = string.Empty;

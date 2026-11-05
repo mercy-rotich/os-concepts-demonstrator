@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,39 +6,53 @@ using OS_Concepts_Demonstrator.Models;
 
 namespace OS_Concepts_Demonstrator.Services;
 
-    public class ProcessService
+public class ProcessService
+{
+    public List<ProcessInfoModel> GetRunningProcesses()
     {
-        public List<ProcessInfoModel> GetRunningProcesses()
-        {
-            List<ProcessInfoModel> processes = new();
+        List<ProcessInfoModel> processes = new();
 
-            foreach (Process process in Process.GetProcesses())
+        foreach (Process process in Process.GetProcesses())
+        {
+            try
             {
+                ProcessInfoModel processInfo = new()
+                {
+                    ProcessId = process.Id,
+                    Name = process.ProcessName,
+                    MemoryUsageMb = process.WorkingSet64 / (1024.0 * 1024.0)
+                };
+
+                // Try to retrieve the process start time.
                 try
                 {
-                    processes.Add(new ProcessInfoModel
-                    {
-                        ProcessId = process.Id,
-                        Name = process.ProcessName,
-                        MemoryUsageMb = process.WorkingSet64 / (1024.0 * 1024.0) // Convert bytes to MB
-                    });
+                    processInfo.StartTime = process.StartTime;
                 }
                 catch (Exception)
                 {
-                    // Handle any exceptions that may occur while accessing process information
-                    continue; // Skip this process and continue with the next one
+                    // Start time may not be accessible.
+                    processInfo.StartTime = null;
                 }
-                finally
-                {
-                    process.Dispose(); // Dispose of the process object to free resources
-                }
+
+                processes.Add(processInfo);
             }
-
-            processes.Sort((a,b) =>
-                 string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
-
-
-
-            return processes;
+            catch (Exception)
+            {
+                // Skip processes whose essential information cannot be accessed.
+                continue;
+            }
+            finally
+            {
+                process.Dispose();
+            }
         }
+
+        processes.Sort((a, b) =>
+            string.Compare(
+                a.Name,
+                b.Name,
+                StringComparison.OrdinalIgnoreCase));
+
+        return processes;
     }
+}

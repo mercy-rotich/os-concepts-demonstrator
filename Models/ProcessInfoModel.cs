@@ -1,10 +1,13 @@
+using System;
 namespace OS_Concepts_Demonstrator.Models;
 
-    public class ProcessInfoModel
-    {
-        public int ProcessId { get; set; }
+public class ProcessInfoModel
+{
+    public int ProcessId { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
-        public double MemoryUsageMb { get; set; }
-    }
+    public double MemoryUsageMb { get; set; }
+
+    public DateTime? StartTime { get; set; }
+}

@@ -23,6 +23,14 @@ namespace OS_Concepts_Demonstrator.ViewModels.Processes;
         [ObservableProperty]
         private string searchText = string.Empty;
 
+        [ObservableProperty]
+        private string sortBy = "Name";
+
+        [ObservableProperty]
+        private bool sortDescending;
+
+        public int TotalProcesses => _allProcesses.Count;
+
         public ProcessesViewModel()
         {
             _processService = new ProcessService();
@@ -32,7 +40,17 @@ namespace OS_Concepts_Demonstrator.ViewModels.Processes;
         //called automatically when searchText changes.
         partial void OnSearchTextChanged(string value)
         {
-            ApplyFilter();
+            ApplyFilterAndSort();
+        }
+
+        partial void OnSortByChanged(string value)
+        {
+            ApplyFilterAndSort();
+        }
+
+        partial void OnSortDescendingChanged(bool value)
+        {
+            ApplyFilterAndSort();
         }
 
 
@@ -46,12 +64,13 @@ namespace OS_Concepts_Demonstrator.ViewModels.Processes;
             {
                 _allProcesses.Add(process);
             }
-            ApplyFilter();
+
+            OnPropertyChanged(nameof(TotalProcesses));
+            ApplyFilterAndSort();
         }
 
-        private void ApplyFilter()
+        private void ApplyFilterAndSort()
         {
-            Processes.Clear();
 
             string query = SearchText.Trim();
 
@@ -59,7 +78,24 @@ namespace OS_Concepts_Demonstrator.ViewModels.Processes;
              process.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
              || process.ProcessId.ToString().Contains(query));
 
-            foreach (ProcessInfoModel process in matchingProcesses)
+             var sortedProcesses = SortBy switch
+            {
+                "Memory" => SortDescending
+                 ? matchingProcesses.OrderByDescending(p => p.MemoryUsageMb) 
+                 : matchingProcesses.OrderBy(p => p.MemoryUsageMb),
+                
+                "PID" => SortDescending
+                 ? matchingProcesses.OrderByDescending(p => p.ProcessId)
+                 : matchingProcesses.OrderBy(p => p.ProcessId),
+                
+                _ => SortDescending
+                  ? matchingProcesses.OrderByDescending(p => p.Name)
+                  : matchingProcesses.OrderBy(p => p.Name)
+            };
+
+            Processes.Clear();
+
+            foreach (ProcessInfoModel process in sortedProcesses)
             {
                 Processes.Add(process);
             }

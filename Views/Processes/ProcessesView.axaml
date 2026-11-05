@@ -28,10 +28,32 @@
                 Padding="20">
 
                 <StackPanel Spacing="16">
-                <TextBox Watermark="Search by process name or PID..."
+                <TextBox PlaceholderText="Search by process name or PID..."
                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                         Padding="12"
                         FontSize="14"/>
+
+                                                
+                    <Grid ColumnDefinitions="*,*,Auto"
+      ColumnSpacing="12">
+
+    <ComboBox Grid.Column="0"
+              SelectedItem="{Binding SortBy}"
+              PlaceholderText="Sort by">
+
+        <ComboBoxItem Content="Name"/>
+        <ComboBoxItem Content="Memory"/>
+        <ComboBoxItem Content="PID"/>
+
+    </ComboBox>
+
+    <CheckBox Grid.Column="1"
+              Content="Descending"
+              IsChecked="{Binding SortDescending}"
+              VerticalAlignment="Center"/>
+
+</Grid>
+
 
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Spacing="4">

@@ -28,6 +28,10 @@
                 Padding="20">
 
                 <StackPanel Spacing="16">
+                <TextBox Watermark="Search by process name or PID..."
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        Padding="12"
+                        FontSize="14"/>
 
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Spacing="4">

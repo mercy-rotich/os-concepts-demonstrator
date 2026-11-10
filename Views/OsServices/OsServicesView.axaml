@@ -1,0 +1,400 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.OsServices"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    x:Class="OS_Concepts_Demonstrator.Views.OsServices.OsServicesView"
+    x:DataType="vm:OsServicesViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.inner">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.statLabel">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Opacity" Value="0.7"/>
+        </Style>
+
+        <Style Selector="TextBlock.statValue">
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style Selector="TextBlock.statValue.bad">
+            <Setter Property="Foreground" Value="#F87171"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+
+        <Style Selector="TextBlock.warn">
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+
+        <Style Selector="TextBlock.good">
+            <Setter Property="Foreground" Value="#86EFAC"/>
+        </Style>
+
+        <!-- Coloured status badge -->
+        <Style Selector="Border.pill">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Background" Value="#2E2E44"/>
+        </Style>
+        <Style Selector="Border.pill > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Border.pill.running">
+            <Setter Property="Background" Value="#14391F"/>
+        </Style>
+        <Style Selector="Border.pill.running > TextBlock">
+            <Setter Property="Foreground" Value="#86EFAC"/>
+        </Style>
+        <Style Selector="Border.pill.failed">
+            <Setter Property="Background" Value="#471D24"/>
+        </Style>
+        <Style Selector="Border.pill.failed > TextBlock">
+            <Setter Property="Foreground" Value="#F87171"/>
+        </Style>
+        <Style Selector="Border.pill.exited">
+            <Setter Property="Background" Value="#1D3250"/>
+        </Style>
+        <Style Selector="Border.pill.exited > TextBlock">
+            <Setter Property="Foreground" Value="#7DD3FC"/>
+        </Style>
+        <Style Selector="Border.pill.other">
+            <Setter Property="Background" Value="#473A12"/>
+        </Style>
+        <Style Selector="Border.pill.other > TextBlock">
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+        <Style Selector="Border.pill > TextBlock">
+            <Setter Property="Foreground" Value="#A7A7B5"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="OS Services" FontSize="28" FontWeight="Bold"/>
+                <TextBlock
+                    Text="The background programs (daemons) the operating system runs and watches over. Read-only: nothing here starts, stops or changes a service."
+                    FontSize="14"
+                    Opacity="0.7"
+                    TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- WHAT ARE SERVICES -->
+            <Border Classes="card">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="What is a service?" Classes="sectionTitle"/>
+                    <TextBlock TextWrapping="Wrap" FontSize="14">
+                        <Run Text="A service (or daemon) is a program that runs in the background with no window, for example printing, networking, logging or scheduled jobs. The first process the kernel starts, PID 1, is the init system. On this kind of system it is systemd: it starts services in the right order, restarts them if they crash, and keeps track of what each one is doing. Each service is described by a unit file and has a state, explained at the bottom of this page."/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- ERROR / UNAVAILABLE -->
+            <Border
+                IsVisible="{Binding HasError}"
+                Background="#3B1D26"
+                BorderBrush="#F87171"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="16">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#F87171" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- SERVICE MANAGER + COUNTS -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding ManagerHeadline}" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding ManagerExplanation}" Classes="subtle"
+                                   Classes.warn="{Binding !IsSystemHealthy}"/>
+                    </StackPanel>
+
+                    <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="12">
+
+                        <Border Grid.Column="0" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Services" Classes="statLabel"/>
+                                <TextBlock Text="{Binding TotalCount}" Classes="statValue"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Running" Classes="statLabel"/>
+                                <TextBlock Text="{Binding RunningCount}" Classes="statValue good"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Exited (finished)" Classes="statLabel"/>
+                                <TextBlock Text="{Binding ExitedCount}" Classes="statValue"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Failed" Classes="statLabel"/>
+                                <TextBlock Text="{Binding FailedCount}" Classes="statValue" Classes.bad="{Binding HasFailed}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="4" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Inactive" Classes="statLabel"/>
+                                <TextBlock Text="{Binding InactiveCount}" Classes="statValue"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- LIST + DETAILS -->
+            <Grid ColumnDefinitions="3*,2*" ColumnSpacing="20" Height="680">
+
+                <!-- LIST -->
+                <Border Grid.Column="0" Classes="card">
+                    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="14">
+
+                        <TextBox
+                            Grid.Row="0"
+                            PlaceholderText="Search by service name or description..."
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12"/>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
+                            <ComboBox
+                                Grid.Column="0"
+                                ItemsSource="{Binding FilterOptions}"
+                                SelectedItem="{Binding SelectedFilter}"
+                                HorizontalAlignment="Stretch"/>
+
+                            <ComboBox
+                                Grid.Column="1"
+                                ItemsSource="{Binding ScopeOptions}"
+                                SelectedItem="{Binding SelectedScope}"
+                                HorizontalAlignment="Stretch"/>
+
+                            <Button
+                                Grid.Column="2"
+                                Content="Refresh"
+                                Padding="16,8"
+                                IsEnabled="{Binding !IsLoading}"
+                                Command="{Binding RefreshCommand}"/>
+                        </Grid>
+
+                        <StackPanel Grid.Row="2" Spacing="4">
+                            <TextBlock Text="Loading services..." IsVisible="{Binding IsLoading}" Foreground="#38BDF8"/>
+                            <TextBlock Text="{Binding LastUpdated}" Classes="subtle"/>
+                            <TextBlock Text="No services match your search or filter." IsVisible="{Binding HasNoMatches}" Classes="subtle"/>
+                        </StackPanel>
+
+                        <ListBox
+                            Grid.Row="3"
+                            ItemsSource="{Binding Services}"
+                            SelectedItem="{Binding SelectedService, Mode=TwoWay}"
+                            Background="Transparent"
+                            BorderThickness="0">
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:ServiceInfoModel">
+
+                                    <Border BorderBrush="#303044" BorderThickness="0,0,0,1" Padding="4,10">
+                                        <Grid ColumnDefinitions="*,92,96" ColumnSpacing="10">
+
+                                            <StackPanel Spacing="2">
+                                                <TextBlock
+                                                    Text="{Binding DisplayName}"
+                                                    FontWeight="SemiBold"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTip.Tip="{Binding Name}"/>
+                                                <TextBlock
+                                                    Text="{Binding Description}"
+                                                    Classes="subtle"
+                                                    TextWrapping="NoWrap"
+                                                    TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <Border
+                                                Grid.Column="1"
+                                                Classes="pill"
+                                                Classes.running="{Binding IsRunning}"
+                                                Classes.failed="{Binding IsFailed}"
+                                                Classes.exited="{Binding IsExited}"
+                                                Classes.other="{Binding IsOther}"
+                                                VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding StatusText}"/>
+                                            </Border>
+
+                                            <TextBlock
+                                                Grid.Column="2"
+                                                Text="{Binding UnitFileState}"
+                                                Classes="subtle"
+                                                VerticalAlignment="Center"
+                                                ToolTip.Tip="{Binding StartupExplanation}"/>
+
+                                        </Grid>
+                                    </Border>
+
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                    </Grid>
+                </Border>
+
+                <!-- DETAILS -->
+                <Border Grid.Column="1" Classes="card">
+                    <ScrollViewer>
+                        <StackPanel Spacing="14">
+
+                            <TextBlock Text="Service Details" Classes="sectionTitle"/>
+
+                            <TextBlock
+                                Text="Select a service from the list to see how systemd is managing it."
+                                Classes="subtle"
+                                IsVisible="{Binding !HasSelection}"/>
+
+                            <StackPanel
+                                Spacing="14"
+                                IsVisible="{Binding HasSelection}">
+
+                                <StackPanel Spacing="6">
+                                    <TextBlock
+                                        Text="{Binding DetailName}"
+                                        FontSize="17"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+
+                                    <Border
+                                        Classes="pill"
+                                        Classes.running="{Binding DetailIsRunning}"
+                                        Classes.failed="{Binding DetailIsFailed}"
+                                        Classes.exited="{Binding DetailIsExited}"
+                                        Classes.other="{Binding DetailIsOther}">
+                                        <TextBlock Text="{Binding DetailStatusText}"/>
+                                    </Border>
+
+                                    <TextBlock Text="{Binding DetailDescription}" TextWrapping="Wrap"/>
+                                </StackPanel>
+
+                                <Border Classes="inner">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="{Binding DetailStatusExplanation}" Classes="subtle"/>
+                                        <TextBlock Text="{Binding DetailStartupExplanation}" Classes="subtle"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Text="Reading details..." IsVisible="{Binding IsLoadingDetails}" Foreground="#38BDF8"/>
+
+                                <TextBlock
+                                    Text="{Binding DetailsError}"
+                                    IsVisible="{Binding HasDetailsError}"
+                                    Foreground="#F87171"
+                                    TextWrapping="Wrap"/>
+
+                                <ItemsControl ItemsSource="{Binding DetailRows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:DetailRow">
+                                            <StackPanel Spacing="1" Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Label}" Classes="label"/>
+                                                <TextBlock Text="{Binding Value}" TextWrapping="Wrap" FontSize="13"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <StackPanel Spacing="6" IsVisible="{Binding !IsLoadingDetails}">
+                                    <TextBlock Text="Recent log lines" FontWeight="SemiBold"/>
+                                    <Border Classes="inner" Padding="12">
+                                        <TextBlock
+                                            Text="{Binding DetailLogs}"
+                                            FontFamily="monospace"
+                                            FontSize="11"
+                                            TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+
+                            </StackPanel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+            </Grid>
+
+            <!-- GLOSSARY -->
+            <Border Classes="card">
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="Reading a service's state" Classes="sectionTitle"/>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Status (active state + sub-state): " FontWeight="SemiBold"/>
+                        <Run Text="'running' means a live process; 'exited' means a one-shot task finished successfully; 'failed' means it crashed or could not start; 'inactive' means it is not running now."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Startup column (unit-file state): " FontWeight="SemiBold"/>
+                        <Run Text="'enabled' starts at boot; 'disabled' does not; 'static' has no boot setting and runs only when another unit needs it; 'masked' is blocked completely."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Dependencies: " FontWeight="SemiBold"/>
+                        <Run Text="'Requires' must be running for this service to work; 'Starts after' and 'Starts before' set the start-up order; 'Wanted by' names the target (such as multi-user.target) that pulls it in at boot."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Restart policy: " FontWeight="SemiBold"/>
+                        <Run Text="what systemd does when the service stops. 'on-failure' restarts it after a crash, which is how a daemon keeps itself alive without anyone watching it."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="System vs user services: " FontWeight="SemiBold"/>
+                        <Run Text="system services serve the whole machine and usually run as root. Your user services belong to your login session and run with your own rights."/>
+                    </TextBlock>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

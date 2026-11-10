@@ -53,7 +53,8 @@
 
             <Button Content="OS Services"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnOsServicesClick"/>
 
             <Button Content="Accounting"
                     HorizontalContentAlignment="Left"

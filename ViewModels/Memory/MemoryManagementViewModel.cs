@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Threading;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OS_Concepts_Demonstrator.Models;
@@ -15,14 +14,15 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
 {
     private readonly SystemInformationService _systemInformationService;
 
-    private readonly Timer _memoryHistoryTimer;
+    private readonly DispatcherTimer _memoryHistoryTimer;
 
     private bool _isDisposed;
 
     public ObservableCollection<MemoryHistoryPoint> MemoryHistory { get; } = new();
 
-    public IEnumerable<double> MemoryChartValues =>
-    MemoryHistory.Select(point => point.UsagePercentage).ToList();
+    // A fresh snapshot each time, so the chart's Points property sees a new reference and redraws.
+    public IEnumerable<MemoryHistoryPoint> MemoryChartPoints =>
+        MemoryHistory.ToList();
 
     [ObservableProperty]
     private string totalMemory = string.Empty;
@@ -39,17 +39,45 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string memoryUsageLabel = string.Empty;
 
+    // Text shown above the graph. Updated every time a new reading is recorded.
+    [ObservableProperty]
+    private string latestReadingLabel = "Waiting for first reading...";
+
+    // Describes the time span covered by the readings currently on the graph.
+    [ObservableProperty]
+    private string monitoringPeriodLabel = "No readings yet";
+
+    // Shown on the page when memory cannot be read. Empty string = everything is fine.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasError))]
+    private string errorMessage = string.Empty;
+
+    // True once at least one reading exists; the view uses it to hide the empty-state text.
+    [ObservableProperty]
+    private bool hasHistory;
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
     public MemoryManagementViewModel()
     {
         _systemInformationService = new SystemInformationService();
 
         RefreshMemory();
 
-        _memoryHistoryTimer = new Timer(
-            _ => Dispatcher.UIThread.Post(RecordMemoryHistory),
-            null,
-            TimeSpan.FromSeconds(5),
-            TimeSpan.FromSeconds(5));
+        // DispatcherTimer ticks on the UI thread, so the handler can touch UI-bound
+        // properties directly and Stop() guarantees no tick arrives afterwards.
+        _memoryHistoryTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(5)
+        };
+
+        _memoryHistoryTimer.Tick += OnMemoryHistoryTick;
+        _memoryHistoryTimer.Start();
+    }
+
+    private void OnMemoryHistoryTick(object? sender, EventArgs e)
+    {
+        RecordMemoryHistory();
     }
 
     private void RecordMemoryHistory()
@@ -57,13 +85,27 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
         if (_isDisposed)
             return;
 
-        MemoryInfoModel info = _systemInformationService.GetMemoryInfo();
+        if (!_systemInformationService.TryGetMemoryInfo(out MemoryInfoModel? info, out string error)
+            || info is null)
+        {
+            // Invalid reading: skip it rather than plotting a wrong point.
+            ErrorMessage = error;
+            return;
+        }
 
-        MemoryHistory.Add(new MemoryHistoryPoint
+        ErrorMessage = string.Empty;
+
+        var point = new MemoryHistoryPoint
         {
             RecordedAt = DateTime.Now,
             UsagePercentage = info.UsedPercentage
-        });
+        };
+
+        MemoryHistory.Add(point);
+        HasHistory = true;
+
+        LatestReadingLabel =
+            $"Latest: {point.UsagePercentage:F1}% at {point.RecordedAt:HH:mm:ss}";
 
         // Keep only the latest 20 readings.
         while (MemoryHistory.Count > 20)
@@ -71,12 +113,48 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
             MemoryHistory.RemoveAt(0);
         }
 
-        OnPropertyChanged(nameof(MemoryChartValues));
+        UpdateMonitoringPeriod();
+
+        OnPropertyChanged(nameof(MemoryChartPoints));
+    }
+
+    // The period runs from the oldest to the newest reading still kept (max 20).
+    private void UpdateMonitoringPeriod()
+    {
+        if (MemoryHistory.Count == 0)
+        {
+            MonitoringPeriodLabel = "No readings yet";
+            return;
+        }
+
+        DateTime start = MemoryHistory[0].RecordedAt;
+        DateTime end = MemoryHistory[^1].RecordedAt;
+        TimeSpan span = end - start;
+
+        string duration = span.TotalMinutes >= 1
+            ? $"{(int)span.TotalMinutes} min {span.Seconds} s"
+            : $"{span.Seconds} s";
+
+        MonitoringPeriodLabel =
+            $"Monitoring period: {start:HH:mm:ss} - {end:HH:mm:ss} ({duration}, {MemoryHistory.Count} {(MemoryHistory.Count == 1 ? "reading" : "readings")})";
     }
 
     public void RefreshMemory()
     {
-        MemoryInfoModel info = _systemInformationService.GetMemoryInfo();
+        if (_isDisposed)
+            return;
+
+        if (!_systemInformationService.TryGetMemoryInfo(out MemoryInfoModel? info, out string error)
+            || info is null)
+        {
+            ErrorMessage = error;
+            TotalMemory = UsedMemory = AvailableMemory = "N/A";
+            MemoryUsagePercentage = 0;
+            MemoryUsageLabel = "Unavailable";
+            return;
+        }
+
+        ErrorMessage = string.Empty;
 
         TotalMemory = $"{info.TotalGb:F2} GB";
         UsedMemory = $"{info.UsedGb:F2} GB";
@@ -88,12 +166,15 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
     }
 
     public void Dispose()
-{
-    if (_isDisposed)
-        return;
+    {
+        if (_isDisposed)
+            return;
 
-    _isDisposed = true;
+        // Set the flag first so any late call exits immediately,
+        // then stop the timer and detach the handler.
+        _isDisposed = true;
 
-    _memoryHistoryTimer.Dispose();
-}
+        _memoryHistoryTimer.Stop();
+        _memoryHistoryTimer.Tick -= OnMemoryHistoryTick;
+    }
 }

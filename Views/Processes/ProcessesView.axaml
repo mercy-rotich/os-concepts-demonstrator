@@ -55,14 +55,10 @@
 
                         <ComboBox
                             Grid.Column="0"
+                            ItemsSource="{Binding SortOptions}"
                             SelectedItem="{Binding SortBy}"
-                            PlaceholderText="Sort by">
-
-                            <ComboBoxItem Content="Name"/>
-                            <ComboBoxItem Content="Memory"/>
-                            <ComboBoxItem Content="PID"/>
-
-                        </ComboBox>
+                            HorizontalAlignment="Stretch"
+                            PlaceholderText="Sort by"/>
 
                         <CheckBox
                             Grid.Column="1"
@@ -91,6 +87,7 @@
                         <Button
                             Grid.Column="1"
                             Content="Refresh"
+                            IsEnabled="{Binding !IsLoading}"
                             Padding="16,8"
                             VerticalAlignment="Center"
                             Click="OnRefreshClick"/>
@@ -99,7 +96,7 @@
 
                     <!-- PROCESS TABLE -->
                     <Grid Grid.Row="3"
-                          RowDefinitions="Auto,*">
+                          RowDefinitions="Auto,Auto,*">
 
                         <Border
                             Grid.Row="0"
@@ -126,8 +123,27 @@
                             </Grid>
                         </Border>
 
+                        <!-- STATUS MESSAGES -->
+                        <StackPanel Grid.Row="1" Spacing="6" Margin="0,8,0,0">
+                            <TextBlock
+                                Text="Loading processes..."
+                                IsVisible="{Binding IsLoading}"
+                                Foreground="#38BDF8"/>
+
+                            <TextBlock
+                                Text="{Binding ErrorMessage}"
+                                IsVisible="{Binding HasError}"
+                                Foreground="#F87171"
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock
+                                Text="No processes match your search."
+                                IsVisible="{Binding HasNoMatches}"
+                                Opacity="0.7"/>
+                        </StackPanel>
+
                         <ListBox
-                            Grid.Row="1"
+                            Grid.Row="2"
                             ItemsSource="{Binding Processes}"
                             SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
                             Background="Transparent"
@@ -252,7 +268,8 @@
 
                             <TextBlock
                                 Text="{Binding SelectedProcess.StartTime,
-                                 StringFormat='{}{0:dd MMM yyyy, HH:mm:ss}'}"
+                                 StringFormat='{}{0:dd MMM yyyy, HH:mm:ss}',
+                                 TargetNullValue='Unavailable'}"
                                 FontSize="16"
                                 FontWeight="SemiBold"/>
 

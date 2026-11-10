@@ -43,7 +43,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
-       
+        Dashboard.Dispose();
         MemoryManagement.Dispose();
     }
 }

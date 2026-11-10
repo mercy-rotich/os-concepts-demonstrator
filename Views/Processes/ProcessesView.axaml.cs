@@ -11,11 +11,11 @@ public partial class ProcessesView : UserControl
         InitializeComponent();
     }
 
-    private void OnRefreshClick(object? sender, RoutedEventArgs e)
+    private async void OnRefreshClick(object? sender, RoutedEventArgs e)
     {
         if(DataContext is ProcessesViewModel viewModel)
         {
-            viewModel.RefreshProcesses();
+            await viewModel.RefreshProcessesAsync();
         }
     }
 }

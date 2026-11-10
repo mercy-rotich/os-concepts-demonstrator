@@ -7,6 +7,7 @@ using OS_Concepts_Demonstrator.ViewModels.Accounting;
 using OS_Concepts_Demonstrator.ViewModels.Audit;
 using OS_Concepts_Demonstrator.ViewModels.Io;
 using OS_Concepts_Demonstrator.ViewModels.Ipc;
+using OS_Concepts_Demonstrator.ViewModels.OSApi;
 using OS_Concepts_Demonstrator.ViewModels.OsServices;
 using OS_Concepts_Demonstrator.ViewModels.Storage;
 
@@ -33,6 +34,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private ProcessAccountingViewModel? _processAccounting;
 
     private SystemAuditViewModel? _systemAudit;
+
+    private OsApisViewModel? _osApis;
 
     [ObservableProperty]
     private ViewModelBase currentViewModel;
@@ -95,6 +98,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         _systemAudit ??= new SystemAuditViewModel();
         CurrentViewModel = _systemAudit;
+    }
+
+    public void ShowOsApis()
+    {
+        _osApis ??= new OsApisViewModel();
+        CurrentViewModel = _osApis;
     }
 
     public void Dispose()

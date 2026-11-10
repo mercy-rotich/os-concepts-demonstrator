@@ -68,7 +68,8 @@
 
             <Button Content="OS APIs"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnOsApisClick"/>
 
         </StackPanel>
 

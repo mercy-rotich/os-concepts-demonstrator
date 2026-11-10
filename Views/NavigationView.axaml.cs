@@ -96,4 +96,14 @@ public partial class NavigationView : UserControl
             viewModel.ShowSystemAudit();
         }
     }
+
+    private void OnOsApisClick(
+        object? sender,
+        Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            viewModel.ShowOsApis();
+        }
+    }
 }

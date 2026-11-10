@@ -46,4 +46,14 @@ public partial class NavigationView : UserControl
             viewModel.ShowStorageManagement();
         }
     }
+
+    private void OnIoManagementClick(
+        object? sender,
+        Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            viewModel.ShowIoManagement();
+        }
+    }
 }

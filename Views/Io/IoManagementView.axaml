@@ -1,0 +1,515 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Io"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    x:Class="OS_Concepts_Demonstrator.Views.Io.IoManagementView"
+    x:DataType="vm:IoManagementViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.inner">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.statLabel">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Opacity" Value="0.7"/>
+        </Style>
+
+        <Style Selector="TextBlock.statValue">
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBlock.metricLabel">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+
+        <Style Selector="TextBlock.metricValue">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.accent">
+            <Setter Property="Foreground" Value="#38BDF8"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="I/O Management" FontSize="28" FontWeight="Bold"/>
+                <TextBlock
+                    Text="How the operating system talks to disks, network cards and input devices (read-only)."
+                    FontSize="14"
+                    Opacity="0.7"/>
+                <TextBlock Text="{Binding LastUpdated}" Classes="subtle"/>
+            </StackPanel>
+
+            <!-- NOTICES (only when some data is unavailable) -->
+            <Border
+                IsVisible="{Binding HasNotices}"
+                Background="#3B1D26"
+                BorderBrush="#F87171"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="16">
+                <TextBlock Text="{Binding Notices}" Foreground="#F87171" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- LIVE SUMMARY -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="16">
+
+                <Border Grid.Column="0" Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Disk read" Classes="statLabel"/>
+                        <TextBlock Text="{Binding DiskReadRate}" Classes="statValue"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Disk write" Classes="statLabel"/>
+                        <TextBlock Text="{Binding DiskWriteRate}" Classes="statValue"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Network download" Classes="statLabel"/>
+                        <TextBlock Text="{Binding NetworkDownloadRate}" Classes="statValue"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3" Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Network upload" Classes="statLabel"/>
+                        <TextBlock Text="{Binding NetworkUploadRate}" Classes="statValue"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+            <TextBlock
+                Text="Measuring... speeds appear after the second reading (about two seconds). The kernel only keeps running totals, so a speed is the change between two readings divided by the time between them."
+                IsVisible="{Binding IsMeasuring}"
+                Classes="subtle accent"/>
+
+            <!-- DISKS -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Storage Devices (block devices)" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="Block devices transfer data in fixed-size blocks and allow random access. Counters come from /proc/diskstats."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <TextBlock
+                        Text="No physical disks were found, or disk statistics are not available on this system."
+                        IsVisible="{Binding HasNoDisks}"
+                        Classes="subtle"/>
+
+                    <ItemsControl ItemsSource="{Binding Disks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:DiskIoModel">
+
+                                <Border Classes="inner" Margin="0,0,0,12">
+                                    <StackPanel Spacing="14">
+
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Subtitle}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                        <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto" RowSpacing="12" ColumnSpacing="12">
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Read speed" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding ReadRateText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Write speed" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding WriteRateText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Operations per second (IOPS)" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding IopsText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="3">
+                                                <TextBlock Text="Average time per operation" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding LatencyText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Text="Busy time (utilisation)" Classes="metricLabel"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding UtilizationText}" FontWeight="SemiBold"/>
+                                                </Grid>
+                                                <ProgressBar
+                                                    Minimum="0"
+                                                    Maximum="100"
+                                                    Value="{Binding UtilizationPercent}"
+                                                    Height="8"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="2">
+                                                <TextBlock Text="Requests in progress now" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding InFlightText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                        <TextBlock Classes="subtle">
+                                            <Run Text="Since boot:  read "/>
+                                            <Run Text="{Binding TotalReadText}" FontWeight="SemiBold"/>
+                                            <Run Text="  |  written "/>
+                                            <Run Text="{Binding TotalWrittenText}" FontWeight="SemiBold"/>
+                                            <Run Text="  |  "/>
+                                            <Run Text="{Binding TotalOperationsText}"/>
+                                        </TextBlock>
+
+                                    </StackPanel>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- NETWORK -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Network Interfaces" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="Network devices move data as packets. Counters come from /proc/net/dev. The summary above counts wired and wireless interfaces only."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <TextBlock
+                        Text="No network interfaces were found, or network statistics are not available."
+                        IsVisible="{Binding HasNoInterfaces}"
+                        Classes="subtle"/>
+
+                    <ItemsControl ItemsSource="{Binding Interfaces}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:NetworkInterfaceModel">
+
+                                <Border Classes="inner" Margin="0,0,0,12">
+                                    <StackPanel Spacing="12">
+
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Subtitle}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Download speed" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding DownloadRateText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Upload speed" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding UploadRateText}" Classes="metricValue"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Grid.ColumnSpan="2">
+                                                <TextBlock Text="Received / sent since boot" Classes="metricLabel"/>
+                                                <TextBlock Text="{Binding TotalReceivedText}" FontSize="13" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding TotalSentText}" FontSize="13" TextWrapping="Wrap"/>
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                        <TextBlock Text="{Binding ProblemsText}" Classes="subtle"/>
+
+                                    </StackPanel>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- INTERRUPTS -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Interrupts" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="A device raises an interrupt to tell the CPU it needs attention (a key was pressed, a disk finished a request, a packet arrived). The CPU then runs the driver's handler instead of constantly polling the device."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="16">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Interrupts per second" Classes="metricLabel"/>
+                            <TextBlock Text="{Binding InterruptRate}" Classes="metricValue"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Context switches per second" Classes="metricLabel"/>
+                            <TextBlock Text="{Binding ContextSwitchRate}" Classes="metricValue"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Total" Classes="metricLabel"/>
+                            <TextBlock Text="{Binding InterruptTotalText}" TextWrapping="Wrap" FontSize="13"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Busiest interrupt sources since boot" FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Interrupt sources are not available on this system."
+                        IsVisible="{Binding HasNoInterrupts}"
+                        Classes="subtle"/>
+
+                    <ItemsControl ItemsSource="{Binding TopInterrupts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:InterruptSourceModel">
+                                <Grid ColumnDefinitions="60,*,140" ColumnSpacing="10" Margin="0,3">
+                                    <TextBlock Text="{Binding Irq}" FontFamily="monospace" Opacity="0.8"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding Detail}" Classes="subtle"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding CountText}" HorizontalAlignment="Right" FontFamily="monospace"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- INPUT DEVICES -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Input Devices (character devices)" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="Keyboards, mice and touchpads deliver a stream of events one at a time, with no fixed block size. The kernel lists them in /proc/bus/input/devices."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <TextBlock
+                        Text="No input devices were found, or the list is not available."
+                        IsVisible="{Binding HasNoInputDevices}"
+                        Classes="subtle"/>
+
+                    <!-- Real input devices as cards in a wrapping grid -->
+                    <ItemsControl ItemsSource="{Binding MainInputDevices}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:InputDeviceModel">
+
+                                <Border Classes="inner" Width="330" Margin="0,0,12,12">
+                                    <StackPanel Spacing="8">
+
+                                        <TextBlock
+                                            Text="{Binding Name}"
+                                            FontWeight="Bold"
+                                            FontSize="15"
+                                            TextWrapping="Wrap"/>
+
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Background="#2B3A55" CornerRadius="6" Padding="8,2">
+                                                <TextBlock Text="{Binding Category}" FontSize="12" Classes="accent"/>
+                                            </Border>
+                                            <TextBlock
+                                                Text="{Binding Connection}"
+                                                FontSize="12"
+                                                Opacity="0.75"
+                                                VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <TextBlock
+                                            Text="{Binding HandlersText}"
+                                            FontFamily="monospace"
+                                            Classes="subtle"/>
+
+                                    </StackPanel>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Everything else, collapsed -->
+                    <Expander
+                        Header="{Binding OtherInputDevicesTitle}"
+                        IsVisible="{Binding HasOtherInputDevices}">
+
+                        <ItemsControl ItemsSource="{Binding OtherInputDevices}" Margin="0,8,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:InputDeviceModel">
+
+                                    <Border Classes="inner" Width="250" Padding="12,10" Margin="0,0,10,10">
+                                        <StackPanel Spacing="3">
+                                            <TextBlock
+                                                Text="{Binding Name}"
+                                                FontWeight="SemiBold"
+                                                FontSize="13"
+                                                TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Summary}" Classes="subtle"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                    </Expander>
+
+                </StackPanel>
+            </Border>
+
+            <!-- DRIVERS -->
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Registered Device Drivers" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="Each driver registers with the kernel under a major number (from /proc/devices). Programs reach a device through a file in /dev whose major number selects the driver."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <Expander Header="{Binding CharacterDriversTitle}">
+                        <ItemsControl ItemsSource="{Binding CharacterDrivers}" Margin="0,8,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:RegisteredDriverModel">
+                                    <Border Classes="inner" Padding="10,6" Margin="0,0,8,8">
+                                        <TextBlock Text="{Binding Text}" FontFamily="monospace" FontSize="12"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
+
+                    <Expander Header="{Binding BlockDriversTitle}">
+                        <ItemsControl ItemsSource="{Binding BlockDrivers}" Margin="0,8,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:RegisteredDriverModel">
+                                    <Border Classes="inner" Padding="10,6" Margin="0,0,8,8">
+                                        <TextBlock Text="{Binding Text}" FontFamily="monospace" FontSize="12"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
+
+                </StackPanel>
+            </Border>
+
+            <!-- GLOSSARY -->
+            <Border Classes="card">
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="What do these numbers mean?" Classes="sectionTitle"/>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Read / write speed (throughput): " FontWeight="SemiBold"/>
+                        <Run Text="bytes moved per second. Sequential transfers of large files give high throughput."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="IOPS: " FontWeight="SemiBold"/>
+                        <Run Text="read and write operations completed per second. Many small random requests give high IOPS but low throughput."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Average time per operation (latency): " FontWeight="SemiBold"/>
+                        <Run Text="how long a request takes from submission to completion, including time queued. SSDs are typically well under 1 ms, spinning disks several ms. 'idle' means no operations finished in the interval."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Busy time (utilisation): " FontWeight="SemiBold"/>
+                        <Run Text="the share of time the device had at least one request pending. For a single hard disk 100% means saturated; SSDs handle many requests in parallel, so 100% busy does not always mean they are at their limit."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Requests in progress: " FontWeight="SemiBold"/>
+                        <Run Text="requests sent to the device and not yet completed. A persistently high number means requests are queueing."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="I/O scheduler: " FontWeight="SemiBold"/>
+                        <Run Text="the kernel policy that orders and merges disk requests. 'none' passes requests straight through (best for fast SSDs); 'mq-deadline' adds ordering with time limits so no request waits too long."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Errors and dropped packets: " FontWeight="SemiBold"/>
+                        <Run Text="errors mean damaged packets; drops mean the system or network discarded packets because it could not keep up. Both should normally be zero."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Context switch: " FontWeight="SemiBold"/>
+                        <Run Text="the CPU stops running one process or thread and starts another. I/O causes many of them: a process waiting for a disk is switched out so another can use the CPU."/>
+                    </TextBlock>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

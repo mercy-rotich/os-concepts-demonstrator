@@ -182,7 +182,7 @@ public class BlockDeviceResolver
         return target?.FullName ?? path;
     }
 
-    private static string? ReadText(string path)
+    public static string? ReadText(string path)
     {
         try
         {
@@ -194,7 +194,7 @@ public class BlockDeviceResolver
         }
     }
 
-    private static long ReadLong(string path)
+    public static long ReadLong(string path)
     {
         string? text = ReadText(path);
 

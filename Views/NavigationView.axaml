@@ -2,6 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="OS_Concepts_Demonstrator.Views.NavigationView">
 
+    <UserControl.Styles>
+        <!-- Every sidebar button fills the column so they line up -->
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+    </UserControl.Styles>
+
     <Border Background="#151521"
             Width="240">
 
@@ -35,11 +42,13 @@
 
             <Button Content="I/O Management"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnIoManagementClick"/>
 
-            <Button Content="Interprocess Communication"
-                    HorizontalContentAlignment="Left"
-                    Padding="15"/>
+            <Button HorizontalContentAlignment="Left"
+                    Padding="15">
+                <TextBlock Text="Interprocess Communication" TextWrapping="Wrap"/>
+            </Button>
 
             <Button Content="OS Services"
                     HorizontalContentAlignment="Left"

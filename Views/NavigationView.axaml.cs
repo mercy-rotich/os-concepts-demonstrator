@@ -56,4 +56,14 @@ public partial class NavigationView : UserControl
             viewModel.ShowIoManagement();
         }
     }
+
+    private void OnIpcManagementClick(
+        object? sender,
+        Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            viewModel.ShowIpcManagement();
+        }
+    }
 }

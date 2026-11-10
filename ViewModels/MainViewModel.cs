@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using OS_Concepts_Demonstrator.ViewModels.Dashboard;
 using OS_Concepts_Demonstrator.ViewModels.Processes;
 using OS_Concepts_Demonstrator.ViewModels.Io;
+using OS_Concepts_Demonstrator.ViewModels.Ipc;
 using OS_Concepts_Demonstrator.ViewModels.Storage;
 
 namespace OS_Concepts_Demonstrator.ViewModels;
@@ -21,6 +22,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private StorageManagementViewModel? _storageManagement;
 
     private IoManagementViewModel? _ioManagement;
+
+    private IpcManagementViewModel? _ipcManagement;
 
     [ObservableProperty]
     private ViewModelBase currentViewModel;
@@ -61,8 +64,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         CurrentViewModel = _ioManagement;
     }
 
+    public void ShowIpcManagement()
+    {
+        _ipcManagement ??= new IpcManagementViewModel();
+        CurrentViewModel = _ipcManagement;
+    }
+
     public void Dispose()
     {
+        _ipcManagement?.Dispose();
         _ioManagement?.Dispose();
         Dashboard.Dispose();
         MemoryManagement.Dispose();

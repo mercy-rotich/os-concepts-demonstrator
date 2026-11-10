@@ -46,7 +46,8 @@
                     Click="OnIoManagementClick"/>
 
             <Button HorizontalContentAlignment="Left"
-                    Padding="15">
+                    Padding="15"
+                    Click="OnIpcManagementClick">
                 <TextBlock Text="Interprocess Communication" TextWrapping="Wrap"/>
             </Button>
 

@@ -1,0 +1,389 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Ipc"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    x:Class="OS_Concepts_Demonstrator.Views.Ipc.IpcManagementView"
+    x:DataType="vm:IpcManagementViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.inner">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBlock.heading">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+        </Style>
+
+        <Style Selector="TextBlock.body">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style Selector="TextBlock.hint">
+            <Setter Property="FontFamily" Value="monospace"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#A7F3D0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBlock.logWarning">
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+
+        <Style Selector="Border.explain">
+            <Setter Property="Background" Value="#202033"/>
+            <Setter Property="BorderBrush" Value="#38BDF8"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,10"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Interprocess Communication" FontSize="28" FontWeight="Bold"/>
+                <TextBlock
+                    Text="How separate programs exchange data. Every demo below uses real kernel objects and controlled child processes."
+                    FontSize="14"
+                    Opacity="0.7"/>
+            </StackPanel>
+
+            <!-- WHY IPC -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <TextBlock Text="Why is IPC needed?" Classes="sectionTitle"/>
+
+                    <TextBlock Classes="body">
+                        <Run Text="Each process has its own private virtual address space. The kernel stops one process from reading or changing another's memory, which keeps the system safe and stable. When processes do need to cooperate, they must ask the kernel to help. Linux offers several IPC mechanisms; three classic ones are shown here."/>
+                    </TextBlock>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+
+                        <Border Grid.Column="0" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Pipe" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock Text="Unstructured stream of bytes, one direction." Classes="subtle"/>
+                                <TextBlock Text="The kernel copies data through a buffer. Simple, but there are no message boundaries." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Message passing" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock Text="Separate, complete messages in a queue." Classes="subtle"/>
+                                <TextBlock Text="The system manages the queue and makes senders wait when it is full." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Shared memory" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock Text="The same RAM visible to several processes." Classes="subtle"/>
+                                <TextBlock Text="Fastest, since nothing is copied, but you must synchronise access yourself." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ========================= PIPE ========================= -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <TextBlock Text="1. Pipe: a byte stream between two processes" Classes="sectionTitle"/>
+
+                    <Border Classes="explain">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="WHAT IS HAPPENING" Classes="heading"/>
+                            <TextBlock Classes="body">
+                                <Run Text="This application starts a child process called "/>
+                                <Run Text="sed" FontFamily="monospace" FontWeight="SemiBold"/>
+                                <Run Text=" with fixed arguments that turn every line into upper case. Before starting it, the kernel creates pipes and connects them to the child's standard input, output and error. You write a line into the first pipe, the child reads it, changes it, and writes the result into the second pipe, which this app reads. Your text is only ever data in the pipe, never part of a command."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="{Binding PipeStatus}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="1. Start child process" Padding="16,8" Command="{Binding StartPipeCommand}"/>
+                        <Button Content="3. Stop (close the pipe)" Padding="16,8" Command="{Binding StopPipeCommand}"/>
+                    </StackPanel>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <TextBox
+                            Text="{Binding PipeInput}"
+                            PlaceholderText="Type a message to send through the pipe..."
+                            MaxLength="200"
+                            Padding="12"/>
+                        <Button
+                            Grid.Column="1"
+                            Content="2. Send through pipe"
+                            Padding="16,8"
+                            VerticalAlignment="Stretch"
+                            Command="{Binding SendPipeMessageCommand}"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding PipeCounters}" Classes="subtle"/>
+
+                    <!-- Evidence from the kernel -->
+                    <Border Classes="inner" IsVisible="{Binding IsPipeRunning}">
+                        <StackPanel Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Proof from the kernel: the child's open files (/proc/PID/fd)" FontWeight="SemiBold"/>
+                                <Button Grid.Column="1" Content="Refresh" Padding="12,4" Command="{Binding RefreshPipeDescriptorsCommand}"/>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding PipeDescriptors}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding}" FontFamily="monospace" FontSize="12" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock
+                                Text="The number in pipe:[...] identifies one pipe. When the same number is open in the child and in this application, those are the two ends of the same pipe."
+                                Classes="subtle"/>
+
+                            <TextBlock Text="{Binding PipeTerminalHint}" Classes="hint"/>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="Activity" FontWeight="SemiBold"/>
+
+                    <Border Classes="inner" Padding="12" MaxHeight="220">
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding PipeLog}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:IpcLogEntry">
+                                        <Grid ColumnDefinitions="90,80,*" ColumnSpacing="10" Margin="0,2">
+                                            <TextBlock Text="{Binding Time}" FontFamily="monospace" FontSize="12" Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Actor}" FontWeight="SemiBold" FontSize="13"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" FontSize="13"
+                                                       Classes.logWarning="{Binding IsWarning}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ========================= MESSAGE QUEUE ========================= -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <TextBlock Text="2. Message passing: a queue between a sender and a receiver" Classes="sectionTitle"/>
+
+                    <Border Classes="explain">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="WHAT IS HAPPENING" Classes="heading"/>
+                            <TextBlock Classes="body">
+                                <Run Text="A sender and a receiver run independently and only ever meet in a queue that holds at most 5 messages. Unlike a pipe, every item is a complete message with its own boundaries. The receiver is deliberately slow (about 0.9 s per message). If you send faster than it can work, the queue fills up and the sender is made to wait. This waiting is how real operating-system message queues (such as POSIX message queues) keep a fast producer from overwhelming a slow consumer."/>
+                            </TextBlock>
+                            <TextBlock
+                                Text="Here both sides are components inside this application. Real message queues work the same way between separate processes."
+                                Classes="subtle"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10">
+                        <TextBox
+                            Text="{Binding QueueInput}"
+                            PlaceholderText="Message text..."
+                            MaxLength="60"
+                            Padding="12"/>
+                        <Button Grid.Column="1" Content="Send one message" Padding="16,8" VerticalAlignment="Stretch"
+                                Command="{Binding SendQueueMessageCommand}"/>
+                        <Button Grid.Column="2" Content="Send 10 quickly" Padding="16,8" VerticalAlignment="Stretch"
+                                Command="{Binding SendBurstCommand}"/>
+                        <Button Grid.Column="3" Content="Cancel" Padding="16,8" VerticalAlignment="Stretch"
+                                Command="{Binding CancelBurstCommand}"/>
+                    </Grid>
+
+                    <!-- Queue state -->
+                    <Border Classes="inner">
+                        <StackPanel Spacing="10">
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding QueueDepthText}" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="1" Text="{Binding QueueCounters}" Classes="subtle"/>
+                            </Grid>
+
+                            <ProgressBar Minimum="0" Maximum="100" Value="{Binding QueueDepthPercent}" Height="14"/>
+
+                            <Border
+                                IsVisible="{Binding IsSenderBlocked}"
+                                Background="#3B2F12"
+                                BorderBrush="#FBBF24"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="12,8">
+                                <TextBlock
+                                    Text="The queue is full: the sender is BLOCKED until the receiver takes a message out."
+                                    Foreground="#FBBF24"
+                                    TextWrapping="Wrap"/>
+                            </Border>
+
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="Activity (newest first)" FontWeight="SemiBold"/>
+
+                    <Border Classes="inner" Padding="12" MaxHeight="260">
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding QueueLog}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:IpcLogEntry">
+                                        <Grid ColumnDefinitions="90,80,*" ColumnSpacing="10" Margin="0,2">
+                                            <TextBlock Text="{Binding Time}" FontFamily="monospace" FontSize="12" Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Actor}" FontWeight="SemiBold" FontSize="13"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" FontSize="13"
+                                                       Classes.logWarning="{Binding IsWarning}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ========================= SHARED MEMORY ========================= -->
+            <Border Classes="card">
+                <StackPanel Spacing="16">
+
+                    <TextBlock Text="3. Shared memory: the same RAM seen by more than one party" Classes="sectionTitle"/>
+
+                    <Border Classes="explain">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="WHAT IS HAPPENING" Classes="heading"/>
+                            <TextBlock Classes="body">
+                                <Run Text="A 4 KB region is created in "/>
+                                <Run Text="/dev/shm" FontFamily="monospace"/>
+                                <Run Text=", a file system that lives entirely in RAM, and mapped into this application twice. Data written through one mapping is instantly visible through the other, and to any other process that opens the same object, with no copying and no system call per byte. That makes it the fastest IPC method. The price is that nothing stops two writers from clashing, so the programs must coordinate. The race demo below shows what happens when they do not."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="{Binding SharedInfo}" Classes="subtle"/>
+
+                    <TextBox
+                        Text="{Binding SharedInput}"
+                        PlaceholderText="Text to place in shared memory..."
+                        MaxLength="250"
+                        Padding="12"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="1. Write into shared memory" Padding="16,8" Command="{Binding WriteSharedMemoryCommand}"/>
+                        <Button Content="2. Read through the second view" Padding="16,8" Command="{Binding ReadSharedMemoryCommand}"/>
+                        <Button Content="3. Read with a separate process" Padding="16,8" Command="{Binding ReadWithChildProcessCommand}"/>
+                    </StackPanel>
+
+                    <!-- Evidence from the kernel -->
+                    <Border Classes="inner">
+                        <StackPanel Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Proof from the kernel: this application's memory map (/proc/self/maps)" FontWeight="SemiBold"/>
+                                <Button Grid.Column="1" Content="Refresh" Padding="12,4" Command="{Binding RefreshMappingsCommand}"/>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding MappingLines}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding}" FontFamily="monospace" FontSize="12" TextWrapping="Wrap" Margin="0,2"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock
+                                Text="Read each line as: address range, permissions, offset, device, inode, file. 'rw-s' is a read-write mapping, 'r--s' read-only, and the 's' means SHARED. Both lines have the same inode: two views of one object."
+                                Classes="subtle"/>
+
+                            <TextBlock Text="{Binding SharedTerminalHint}" Classes="hint"/>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="Activity (newest first)" FontWeight="SemiBold"/>
+
+                    <Border Classes="inner" Padding="12" MaxHeight="220">
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding SharedLog}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:IpcLogEntry">
+                                        <Grid ColumnDefinitions="90,120,*" ColumnSpacing="10" Margin="0,2">
+                                            <TextBlock Text="{Binding Time}" FontFamily="monospace" FontSize="12" Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Actor}" FontWeight="SemiBold" FontSize="13"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" FontSize="13"
+                                                       Classes.logWarning="{Binding IsWarning}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Race condition -->
+                    <Border Classes="explain">
+                        <StackPanel Spacing="10">
+
+                            <TextBlock Text="WHY SHARED MEMORY NEEDS SYNCHRONISATION: THE RACE CONDITION" Classes="heading"/>
+
+                            <TextBlock Classes="body">
+                                <Run Text="Two threads each add 1 to a counter stored in the shared region, one million times. 'Add 1' is really three steps: read the value, add one, write it back. If both threads read the same value before either writes, one addition is lost. The run is repeated with a lock, which lets only one thread through those three steps at a time."/>
+                            </TextBlock>
+
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Button Content="Run the race demo" Padding="16,8" Command="{Binding RunRaceDemoCommand}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding RaceResult}" FontFamily="monospace" FontSize="14" TextWrapping="Wrap"/>
+
+                            <TextBlock
+                                Text="The exact number of lost additions differs on every run; that unpredictability is what makes race conditions hard to debug."
+                                Classes="subtle"/>
+
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

@@ -3,6 +3,7 @@ using OS_Concepts_Demonstrator.ViewModels.Memory;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OS_Concepts_Demonstrator.ViewModels.Dashboard;
 using OS_Concepts_Demonstrator.ViewModels.Processes;
+using OS_Concepts_Demonstrator.ViewModels.Storage;
 
 namespace OS_Concepts_Demonstrator.ViewModels;
 
@@ -13,6 +14,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     public ProcessesViewModel Processes { get; } 
 
     public MemoryManagementViewModel MemoryManagement { get; }
+
+    // Created the first time the page is opened, then reused so the user
+    // returns to the same folder.
+    private StorageManagementViewModel? _storageManagement;
 
     [ObservableProperty]
     private ViewModelBase currentViewModel;
@@ -40,6 +45,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 {
     CurrentViewModel = MemoryManagement;
 }
+
+    public void ShowStorageManagement()
+    {
+        _storageManagement ??= new StorageManagementViewModel();
+        CurrentViewModel = _storageManagement;
+    }
 
     public void Dispose()
     {

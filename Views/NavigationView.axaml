@@ -30,7 +30,8 @@
 
             <Button Content="File &amp; Storage"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnStorageManagementClick"/>
 
             <Button Content="I/O Management"
                     HorizontalContentAlignment="Left"

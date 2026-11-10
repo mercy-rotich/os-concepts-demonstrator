@@ -1,0 +1,404 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Storage"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    x:Class="OS_Concepts_Demonstrator.Views.Storage.StorageManagementView"
+    x:DataType="vm:StorageManagementViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <!-- A lighter panel nested inside a card -->
+        <Style Selector="Border.inner">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Folder names are shown in the accent colour -->
+        <Style Selector="TextBlock.folder">
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <StackPanel Spacing="6">
+
+                <TextBlock
+                    Text="File &amp; Storage Management"
+                    FontSize="28"
+                    FontWeight="Bold"/>
+
+                <TextBlock
+                    Text="Explore physical disks, filesystems, mount points and directories (read-only)."
+                    FontSize="14"
+                    Opacity="0.7"/>
+
+            </StackPanel>
+
+            <!-- ERROR BANNER -->
+            <Border
+                IsVisible="{Binding HasError}"
+                Background="#3B1D26"
+                BorderBrush="#F87171"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="16">
+
+                <TextBlock
+                    Text="{Binding ErrorMessage}"
+                    Foreground="#F87171"
+                    TextWrapping="Wrap"/>
+
+            </Border>
+
+            <!-- STORAGE SUMMARY -->
+            <Border Classes="card">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Storage Overview" Classes="sectionTitle"/>
+                    <TextBlock Text="{Binding StorageSummary}" TextWrapping="Wrap"/>
+                    <TextBlock
+                        Text="A mount point is a folder where a filesystem is attached to the directory tree. It is not a disk: several mount points can share one filesystem, and one disk can hold several partitions."
+                        Classes="subtle"/>
+                </StackPanel>
+            </Border>
+
+            <!-- PHYSICAL DEVICES -->
+            <Border Classes="card">
+
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Physical Storage Devices" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="The hardware: each disk and the partitions it is divided into."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Disks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:PhysicalDiskModel">
+
+                                <Border Classes="inner" Margin="0,0,0,12">
+                                    <StackPanel Spacing="8">
+
+                                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Subtitle}" Classes="subtle"/>
+
+                                        <ItemsControl ItemsSource="{Binding Partitions}" Margin="12,4,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="models:PartitionModel">
+                                                    <StackPanel Spacing="2" Margin="0,4">
+                                                        <TextBlock Text="{Binding Text}" FontFamily="monospace"/>
+                                                        <TextBlock Text="{Binding MountedText}" Classes="subtle"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock
+                                            Text="No partitions (the whole disk may hold one filesystem)."
+                                            IsVisible="{Binding HasNoPartitions}"
+                                            Classes="subtle"/>
+
+                                    </StackPanel>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- MOUNTED FILESYSTEMS -->
+            <Border Classes="card">
+
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Mounted Filesystems" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="Each card is one filesystem with its capacity. The mount points listed inside it are where it appears in the directory tree."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <TextBlock
+                        Text="No storage filesystems could be read on this system."
+                        IsVisible="{Binding HasNoFilesystems}"
+                        Classes="subtle"/>
+
+                    <ItemsControl ItemsSource="{Binding Filesystems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:FilesystemGroupModel">
+
+                                <Border Classes="inner" Margin="0,0,0,12">
+                                    <StackPanel Spacing="10">
+
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Subtitle}" Classes="subtle"/>
+                                            </StackPanel>
+
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Text="{Binding UsageLabel}"
+                                                FontWeight="SemiBold"
+                                                VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <ProgressBar
+                                            Minimum="0"
+                                            Maximum="100"
+                                            Value="{Binding UsedPercentage}"
+                                            Height="10"/>
+
+                                        <TextBlock Text="{Binding Summary}" Classes="subtle"/>
+
+                                        <!-- Physical device > Partition > Filesystem -->
+                                        <Grid ColumnDefinitions="130,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                            <TextBlock Text="Physical device" Classes="subtle"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding PhysicalDeviceText}" TextWrapping="Wrap" FontSize="13"/>
+
+                                            <TextBlock Grid.Row="1" Text="Partition" Classes="subtle"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PartitionText}" TextWrapping="Wrap" FontSize="13"/>
+
+                                            <TextBlock Grid.Row="2" Text="Filesystem" Classes="subtle"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FilesystemText}" FontSize="13"/>
+                                        </Grid>
+
+                                        <TextBlock
+                                            Text="{Binding SharedNote}"
+                                            IsVisible="{Binding IsShared}"
+                                            Foreground="#38BDF8"
+                                            TextWrapping="Wrap"
+                                            FontSize="13"/>
+
+                                        <!-- Mount points -->
+                                        <TextBlock Text="Mount points" FontWeight="SemiBold"/>
+
+                                        <ItemsControl ItemsSource="{Binding MountPoints}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="models:MountPointModel">
+
+                                                    <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+
+                                                        <StackPanel Spacing="2">
+                                                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                                                <TextBlock Text="{Binding Path}" FontFamily="monospace" FontWeight="Bold"/>
+                                                                <TextBlock Text="{Binding Description}" Opacity="0.85"/>
+                                                            </StackPanel>
+
+                                                            <TextBlock
+                                                                Text="{Binding Detail}"
+                                                                IsVisible="{Binding HasDetail}"
+                                                                Classes="subtle"/>
+                                                        </StackPanel>
+
+                                                        <Button
+                                                            Grid.Column="1"
+                                                            Content="Browse"
+                                                            Padding="14,6"
+                                                            Click="OnBrowseClick"/>
+
+                                                    </Grid>
+
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                    </StackPanel>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- VIRTUAL FILESYSTEMS -->
+                    <Expander Header="{Binding VirtualFilesystemsTitle}">
+
+                        <StackPanel Spacing="8" Margin="0,8,0,0">
+
+                            <TextBlock
+                                Text="These are provided by the kernel or held in RAM. They are not disks and take no space on any drive."
+                                Classes="subtle"/>
+
+                            <ItemsControl ItemsSource="{Binding VirtualFilesystems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:VirtualFilesystemModel">
+
+                                        <Grid ColumnDefinitions="260,90,*" ColumnSpacing="10" Margin="0,3">
+                                            <TextBlock Text="{Binding MountPoint}" FontFamily="monospace" TextTrimming="CharacterEllipsis"
+                                                       ToolTip.Tip="{Binding MountPoint}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding FileSystemType}" Opacity="0.8"/>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="13"/>
+                                                <TextBlock Text="{Binding SizeText}" Classes="subtle"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+
+                    </Expander>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- DIRECTORY BROWSER -->
+            <Border Classes="card">
+
+                <StackPanel Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Directory Browser" Classes="sectionTitle"/>
+                        <TextBlock
+                            Text="Double-click a folder to open it. Folders show no size because calculating it would mean reading the whole tree."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <!-- TOOLBAR -->
+                    <Grid ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="10">
+
+                        <Button
+                            Grid.Column="0"
+                            Content="Up"
+                            Padding="16,8"
+                            Command="{Binding GoUpCommand}"/>
+
+                        <Button
+                            Grid.Column="1"
+                            Content="Home"
+                            Padding="16,8"
+                            Command="{Binding GoHomeCommand}"/>
+
+                        <Button
+                            Grid.Column="2"
+                            Content="Refresh"
+                            Padding="16,8"
+                            Command="{Binding RefreshCommand}"/>
+
+                        <TextBox
+                            Grid.Column="3"
+                            Text="{Binding CurrentPath}"
+                            IsReadOnly="True"
+                            VerticalContentAlignment="Center"/>
+
+                    </Grid>
+
+                    <TextBlock Text="{Binding DirectorySummary}" Classes="subtle"/>
+
+                    <TextBlock
+                        Text="Loading..."
+                        IsVisible="{Binding IsLoading}"
+                        Foreground="#38BDF8"/>
+
+                    <TextBlock
+                        Text="This folder is empty."
+                        IsVisible="{Binding IsDirectoryEmpty}"
+                        Classes="subtle"/>
+
+                    <!-- TABLE HEADER -->
+                    <Border Background="#292940" Padding="12">
+                        <Grid ColumnDefinitions="*,70,90,150,110" ColumnSpacing="8">
+                            <TextBlock Text="Name" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="Type" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="2" Text="Size" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Text="Modified" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="4" Text="Permissions" FontWeight="Bold"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ENTRIES (scrolls on its own) -->
+                    <ListBox
+                        x:Name="EntriesList"
+                        Height="380"
+                        ItemsSource="{Binding Entries}"
+                        SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        DoubleTapped="OnEntryDoubleTapped">
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:DirectoryEntryModel">
+
+                                <Border
+                                    BorderBrush="#303044"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="4,10">
+
+                                    <Grid ColumnDefinitions="*,70,90,150,110" ColumnSpacing="8">
+
+                                        <TextBlock
+                                            Text="{Binding Name}"
+                                            Classes.folder="{Binding IsDirectory}"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTip.Tip="{Binding FullPath}"/>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding TypeText}" Opacity="0.8"/>
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Text="{Binding SizeText}"
+                                            HorizontalAlignment="Right"/>
+
+                                        <TextBlock Grid.Column="3" Text="{Binding ModifiedText}"/>
+
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            Text="{Binding Permissions}"
+                                            FontFamily="monospace"/>
+
+                                    </Grid>
+
+                                </Border>
+
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
+
+                    <!-- SELECTED ITEM DETAILS -->
+                    <Border Background="#292940" CornerRadius="8" Padding="14">
+                        <TextBlock
+                            Text="{Binding SelectedEntryDetails}"
+                            TextWrapping="Wrap"
+                            FontSize="13"/>
+                    </Border>
+
+                </StackPanel>
+
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

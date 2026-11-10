@@ -1,3 +1,4 @@
+using OS_Concepts_Demonstrator.ViewModels.Memory;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OS_Concepts_Demonstrator.ViewModels.Dashboard;
 using OS_Concepts_Demonstrator.ViewModels.Processes;
@@ -10,6 +11,8 @@ public partial class MainViewModel : ViewModelBase
 
     public ProcessesViewModel Processes { get; } 
 
+    public MemoryManagementViewModel MemoryManagement { get; }
+
     [ObservableProperty]
     private ViewModelBase currentViewModel;
 
@@ -17,6 +20,7 @@ public partial class MainViewModel : ViewModelBase
     {
         Dashboard = new DashboardViewModel();
         Processes = new ProcessesViewModel();
+        MemoryManagement = new MemoryManagementViewModel();
 
         CurrentViewModel = Dashboard;
     }
@@ -30,4 +34,9 @@ public partial class MainViewModel : ViewModelBase
     {
         CurrentViewModel = Processes;
     }
+
+    public void ShowMemoryManagement()
+{
+    CurrentViewModel = MemoryManagement;
+}
 }

@@ -25,7 +25,8 @@
 
             <Button Content="Memory Management"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                     Click="OnMemoryManagementClick"/>
 
             <Button Content="File &amp; Storage"
                     HorizontalContentAlignment="Left"

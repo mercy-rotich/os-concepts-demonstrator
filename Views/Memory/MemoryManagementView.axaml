@@ -1,0 +1,152 @@
+
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Memory"
+    x:Class="OS_Concepts_Demonstrator.Views.Memory.MemoryManagementView"
+    x:DataType="vm:MemoryManagementViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <StackPanel Spacing="6">
+
+                <TextBlock
+                    Text="Memory Management"
+                    FontSize="28"
+                    FontWeight="Bold"/>
+
+                <TextBlock
+                    Text="Monitor your system's physical memory usage."
+                    FontSize="14"
+                    Opacity="0.7"/>
+
+            </StackPanel>
+
+            <!-- MEMORY OVERVIEW -->
+            <Grid ColumnDefinitions="*,*,*"
+                  ColumnSpacing="16">
+
+                <!-- TOTAL MEMORY -->
+                <Border
+                    Grid.Column="0"
+                    Background="#1B1B2B"
+                    CornerRadius="12"
+                    Padding="20">
+
+                    <StackPanel Spacing="10">
+
+                        <TextBlock
+                            Text="Total RAM"
+                            FontSize="14"
+                            Opacity="0.7"/>
+
+                        <TextBlock
+                            Text="{Binding TotalMemory}"
+                            FontSize="26"
+                            FontWeight="Bold"/>
+
+                    </StackPanel>
+
+                </Border>
+
+                <!-- USED MEMORY -->
+                <Border
+                    Grid.Column="1"
+                    Background="#1B1B2B"
+                    CornerRadius="12"
+                    Padding="20">
+
+                    <StackPanel Spacing="10">
+
+                        <TextBlock
+                            Text="Used RAM"
+                            FontSize="14"
+                            Opacity="0.7"/>
+
+                        <TextBlock
+                            Text="{Binding UsedMemory}"
+                            FontSize="26"
+                            FontWeight="Bold"/>
+
+                    </StackPanel>
+
+                </Border>
+
+                <!-- AVAILABLE MEMORY -->
+                <Border
+                    Grid.Column="2"
+                    Background="#1B1B2B"
+                    CornerRadius="12"
+                    Padding="20">
+
+                    <StackPanel Spacing="10">
+
+                        <TextBlock
+                            Text="Available RAM"
+                            FontSize="14"
+                            Opacity="0.7"/>
+
+                        <TextBlock
+                            Text="{Binding AvailableMemory}"
+                            FontSize="26"
+                            FontWeight="Bold"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <!-- MEMORY USAGE -->
+            <Border
+                Background="#1B1B2B"
+                CornerRadius="12"
+                Padding="24">
+
+                <StackPanel Spacing="20">
+
+                    <Grid ColumnDefinitions="*,Auto">
+
+                        <TextBlock
+                            Text="Memory Usage"
+                            FontSize="20"
+                            FontWeight="SemiBold"/>
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{Binding MemoryUsageLabel}"
+                            FontSize="16"
+                            FontWeight="Bold"/>
+
+                    </Grid>
+
+                    <ProgressBar
+                        Minimum="0"
+                        Maximum="100"
+                        Value="{Binding MemoryUsagePercentage}"
+                        Height="16"/>
+
+                    <TextBlock
+                        Text="Memory usage is calculated using total physical RAM and Linux's available memory estimate."
+                        FontSize="13"
+                        Opacity="0.7"
+                        TextWrapping="Wrap"/>
+
+                    <Button
+                        Content="Refresh Memory"
+                        HorizontalAlignment="Left"
+                        Padding="18,10"
+                        Click="OnRefreshClick"/>
+
+                </StackPanel>
+
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

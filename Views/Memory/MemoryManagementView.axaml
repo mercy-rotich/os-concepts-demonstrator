@@ -3,6 +3,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Memory"
+    xmlns:controls="using:OS_Concepts_Demonstrator.Controls"
     x:Class="OS_Concepts_Demonstrator.Views.Memory.MemoryManagementView"
     x:DataType="vm:MemoryManagementViewModel">
 
@@ -37,7 +38,6 @@
                     Padding="20">
 
                     <StackPanel Spacing="10">
-
                         <TextBlock
                             Text="Total RAM"
                             FontSize="14"
@@ -47,7 +47,6 @@
                             Text="{Binding TotalMemory}"
                             FontSize="26"
                             FontWeight="Bold"/>
-
                     </StackPanel>
 
                 </Border>
@@ -60,7 +59,6 @@
                     Padding="20">
 
                     <StackPanel Spacing="10">
-
                         <TextBlock
                             Text="Used RAM"
                             FontSize="14"
@@ -70,7 +68,6 @@
                             Text="{Binding UsedMemory}"
                             FontSize="26"
                             FontWeight="Bold"/>
-
                     </StackPanel>
 
                 </Border>
@@ -83,7 +80,6 @@
                     Padding="20">
 
                     <StackPanel Spacing="10">
-
                         <TextBlock
                             Text="Available RAM"
                             FontSize="14"
@@ -93,7 +89,6 @@
                             Text="{Binding AvailableMemory}"
                             FontSize="26"
                             FontWeight="Bold"/>
-
                     </StackPanel>
 
                 </Border>
@@ -140,6 +135,89 @@
                         HorizontalAlignment="Left"
                         Padding="18,10"
                         Click="OnRefreshClick"/>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- MEMORY USAGE GRAPH -->
+            <Border
+                Background="#1B1B2B"
+                CornerRadius="12"
+                Padding="24">
+
+                <StackPanel Spacing="16">
+
+                    <TextBlock
+                        Text="Memory Usage Trend"
+                        FontSize="20"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Visual representation of RAM usage over time."
+                        FontSize="13"
+                        Opacity="0.7"/>
+
+                    <controls:MemoryUsageChart
+                        Height="250"
+                        Values="{Binding MemoryChartValues}"/>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- MEMORY HISTORY -->
+            <Border
+                Background="#1B1B2B"
+                CornerRadius="12"
+                Padding="24">
+
+                <StackPanel Spacing="16">
+
+                    <TextBlock
+                        Text="Memory Usage History"
+                        FontSize="20"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Recent RAM usage readings collected every five seconds."
+                        FontSize="13"
+                        Opacity="0.7"/>
+
+                    <ItemsControl ItemsSource="{Binding MemoryHistory}">
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+
+                                <Grid ColumnDefinitions="100,*,60"
+                                      ColumnSpacing="12">
+
+                                    <TextBlock
+                                        Text="{Binding RecordedAt, StringFormat='{}{0:HH:mm:ss}'}"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"/>
+
+                                    <ProgressBar
+                                        Grid.Column="1"
+                                        Minimum="0"
+                                        Maximum="100"
+                                        Value="{Binding UsagePercentage}"
+                                        Height="10"
+                                        VerticalAlignment="Center"/>
+
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Text="{Binding UsagePercentage, StringFormat='{}{0:F1}%'}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"/>
+
+                                </Grid>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+
+                    </ItemsControl>
 
                 </StackPanel>
 

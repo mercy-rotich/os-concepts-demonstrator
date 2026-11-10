@@ -1,3 +1,4 @@
+using System;
 using OS_Concepts_Demonstrator.ViewModels.Memory;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OS_Concepts_Demonstrator.ViewModels.Dashboard;
@@ -5,7 +6,7 @@ using OS_Concepts_Demonstrator.ViewModels.Processes;
 
 namespace OS_Concepts_Demonstrator.ViewModels;
 
-public partial class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase, IDisposable
 {
     public DashboardViewModel Dashboard { get; } 
 
@@ -39,4 +40,10 @@ public partial class MainViewModel : ViewModelBase
 {
     CurrentViewModel = MemoryManagement;
 }
+
+    public void Dispose()
+    {
+       
+        MemoryManagement.Dispose();
+    }
 }

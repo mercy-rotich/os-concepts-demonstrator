@@ -1,0 +1,348 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Accounting"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    x:Class="OS_Concepts_Demonstrator.Views.Accounting.ProcessAccountingView"
+    x:DataType="vm:ProcessAccountingViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.inner">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+
+        <Style Selector="TextBlock.mono">
+            <Setter Property="FontFamily" Value="monospace"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="TextBlock.accent">
+            <Setter Property="Foreground" Value="#38BDF8"/>
+        </Style>
+
+        <!-- Coloured status badge: green = available / good, amber = partial / review, grey = not available -->
+        <Style Selector="Border.pill">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Background" Value="#2E2E44"/>
+        </Style>
+        <Style Selector="Border.pill > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#A7A7B5"/>
+        </Style>
+        <Style Selector="Border.pill.good">
+            <Setter Property="Background" Value="#14391F"/>
+        </Style>
+        <Style Selector="Border.pill.good > TextBlock">
+            <Setter Property="Foreground" Value="#86EFAC"/>
+        </Style>
+        <Style Selector="Border.pill.partial">
+            <Setter Property="Background" Value="#473A12"/>
+        </Style>
+        <Style Selector="Border.pill.partial > TextBlock">
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+        <Style Selector="Border.pill.none">
+            <Setter Property="Background" Value="#3A2A33"/>
+        </Style>
+        <Style Selector="Border.pill.none > TextBlock">
+            <Setter Property="Foreground" Value="#F0A5B5"/>
+        </Style>
+
+        <Style Selector="TextBlock.restricted">
+            <Setter Property="Opacity" Value="0.45"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Process Accounting" FontSize="28" FontWeight="Bold"/>
+                <TextBlock
+                    Text="How much of the computer each process has used: CPU time, memory, input and output, and when it started. Read-only."
+                    FontSize="14"
+                    Opacity="0.7"
+                    TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- CONCEPT -->
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+
+                    <TextBlock Text="What is process accounting?" Classes="sectionTitle"/>
+
+                    <TextBlock TextWrapping="Wrap" FontSize="14">
+                        <Run Text="Accounting means keeping a record of who used which resources. The kernel measures every process as it runs: how long the CPU worked for it, how much memory it holds, how much data it moved, and how often the scheduler switched it. This is the basis for billing in shared systems, finding runaway programs and investigating incidents."/>
+                    </TextBlock>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+
+                        <Border Grid.Column="0" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Live accounting (shown below)" FontWeight="Bold"/>
+                                <TextBlock Text="Counters the kernel keeps for every running process and shows in /proc. Anyone can read most of them. They describe processes that exist right now." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Historical accounting (optional)" FontWeight="Bold"/>
+                                <TextBlock Text="BSD process accounting writes one record each time a process exits, so its usage is remembered after it is gone. An administrator must turn it on. See the next section for whether it is available here." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- WHAT THIS SYSTEM EXPOSES -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="What this system actually provides" Classes="sectionTitle"/>
+                        <TextBlock Text="Each source below was checked just now. Green is collected and shown on this page. Amber is only partly readable. Red means this account cannot get it, and the reason is given, so nothing on this page is guessed or filled with zeros."
+                                   Classes="subtle"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Sources}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:DataSourceStatusModel">
+                                <Border Classes="inner" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="130,*" ColumnSpacing="14">
+
+                                        <Border
+                                            Classes="pill"
+                                            Classes.good="{Binding IsAvailable}"
+                                            Classes.partial="{Binding IsPartial}"
+                                            Classes.none="{Binding IsUnavailable}">
+                                            <TextBlock Text="{Binding StatusText}"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" Spacing="3">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Provides}" Classes="label mono"/>
+                                            <TextBlock Text="{Binding Detail}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- LIVE TABLE -->
+            <Border Classes="card">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Live process accounting" Classes="sectionTitle"/>
+                    <TextBlock Text="{Binding Summary}" Classes="subtle"/>
+                    <TextBlock Text="{Binding LastUpdated}" Classes="subtle"/>
+                    <TextBlock
+                        Text="Measuring... the CPU percentage appears after the second reading (about two seconds). The kernel only keeps running totals, so a rate is the change between two readings divided by the time between them."
+                        IsVisible="{Binding IsMeasuring}"
+                        Classes="subtle accent"/>
+                    <TextBlock Text="{Binding Notices}" IsVisible="{Binding HasNotices}" Foreground="#F87171" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="5*,3*" ColumnSpacing="20" Height="720">
+
+                <!-- LIST -->
+                <Border Grid.Column="0" Classes="card">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="12">
+
+                        <TextBox
+                            Grid.Row="0"
+                            PlaceholderText="Search by name, user or process ID..."
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12"/>
+
+                        <ComboBox
+                            Grid.Row="1"
+                            ItemsSource="{Binding SortOptions}"
+                            SelectedItem="{Binding SelectedSort}"
+                            HorizontalAlignment="Stretch"/>
+
+                        <TextBlock Grid.Row="2" Text="{Binding ListNote}" Classes="subtle"/>
+
+                        <Border Grid.Row="3" Background="#292940" Padding="10,8" CornerRadius="6">
+                            <Grid ColumnDefinitions="46,*,54,66,66,108" ColumnSpacing="4">
+                                <TextBlock Text="PID" FontWeight="Bold" FontSize="12"/>
+                                <TextBlock Grid.Column="1" Text="Process" FontWeight="Bold" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="CPU now" FontWeight="Bold" FontSize="12" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="3" Text="CPU time" FontWeight="Bold" FontSize="12" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="Memory" FontWeight="Bold" FontSize="12" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="5" Text="Disk R / W" FontWeight="Bold" FontSize="12" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </Border>
+
+                        <ListBox
+                            Grid.Row="4"
+                            ItemsSource="{Binding Rows}"
+                            SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                            Background="Transparent"
+                            BorderThickness="0">
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:ProcessAccountingRowModel">
+
+                                    <Border BorderBrush="#303044" BorderThickness="0,0,0,1" Padding="0,9">
+                                        <Grid ColumnDefinitions="46,*,54,66,66,108" ColumnSpacing="4">
+
+                                            <TextBlock Text="{Binding Pid}" FontSize="12" Opacity="0.8"/>
+
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Text="{Binding Name}"
+                                                FontSize="13"
+                                                FontWeight="SemiBold"
+                                                TextTrimming="CharacterEllipsis"
+                                                ToolTip.Tip="{Binding Name}"/>
+
+                                            <TextBlock Grid.Column="2" Text="{Binding CpuPercentText}" FontSize="12" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding CpuTotalText}" FontSize="12" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding MemoryText}" FontSize="12" HorizontalAlignment="Right"/>
+
+                                            <TextBlock
+                                                Grid.Column="5"
+                                                Text="{Binding IoText}"
+                                                FontSize="11"
+                                                HorizontalAlignment="Right"
+                                                TextTrimming="CharacterEllipsis"
+                                                Classes.restricted="{Binding IsIoRestricted}"/>
+
+                                        </Grid>
+                                    </Border>
+
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                    </Grid>
+                </Border>
+
+                <!-- DETAILS -->
+                <Border Grid.Column="1" Classes="card">
+                    <ScrollViewer>
+                        <StackPanel Spacing="14">
+
+                            <TextBlock Text="Process Details" Classes="sectionTitle"/>
+
+                            <TextBlock
+                                Text="Select a process to see everything the kernel has recorded about it."
+                                Classes="subtle"
+                                IsVisible="{Binding !HasSelection}"/>
+
+                            <StackPanel Spacing="14" IsVisible="{Binding HasSelection}">
+
+                                <TextBlock Text="{Binding DetailTitle}" FontSize="17" FontWeight="Bold" TextWrapping="Wrap"/>
+
+                                <Border
+                                    Classes="inner"
+                                    IsVisible="{Binding SelectedProcessEnded}"
+                                    Background="#3B2F12">
+                                    <TextBlock
+                                        Text="This process has finished since you selected it. Linux keeps no record of a process once it exits unless an administrator has switched on process accounting, which this system does not have, so there is nothing more to show."
+                                        Foreground="#FBBF24"
+                                        TextWrapping="Wrap"/>
+                                </Border>
+
+                                <ItemsControl ItemsSource="{Binding DetailRows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:DetailRow">
+                                            <StackPanel Spacing="1" Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Label}" Classes="label"/>
+                                                <TextBlock Text="{Binding Value}" TextWrapping="Wrap" FontSize="13"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+            </Grid>
+
+            <!-- GLOSSARY -->
+            <Border Classes="card">
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="Reading the columns" Classes="sectionTitle"/>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="CPU now: " FontWeight="SemiBold"/>
+                        <Run Text="the share of one processor core the process used since the last reading. A busy multi-threaded program can go above 100% because it uses several cores at once."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="CPU time: " FontWeight="SemiBold"/>
+                        <Run Text="the total processor time used since the process started, split in the details into user mode (the program's own code) and kernel mode (the kernel working for it). A process that has run for an hour may have used only seconds of CPU if it mostly waits."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Memory: " FontWeight="SemiBold"/>
+                        <Run Text="the resident set size: the part of the process that is in physical RAM right now. The details also show its peak. Kernel threads have no user memory, so they show a dash instead of zero."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Disk read/write: " FontWeight="SemiBold"/>
+                        <Run Text="bytes the process has caused to be read from and written to storage. Greyed 'restricted' means the kernel does not let this account see that process's I/O; it does not mean zero."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Context switches: " FontWeight="SemiBold"/>
+                        <Run Text="voluntary ones happen when a process gives up the CPU to wait for something; involuntary ones happen when the scheduler takes the CPU away because its time slice ended."/>
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Page faults: " FontWeight="SemiBold"/>
+                        <Run Text="a minor fault is resolved from memory; a major fault needed the kernel to read from disk, which is far slower."/>
+                    </TextBlock>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

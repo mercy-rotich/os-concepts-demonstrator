@@ -58,11 +58,13 @@
 
             <Button Content="Accounting"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnProcessAccountingClick"/>
 
             <Button Content="Audit"
                     HorizontalContentAlignment="Left"
-                    Padding="15"/>
+                    Padding="15"
+                    Click="OnSystemAuditClick"/>
 
             <Button Content="OS APIs"
                     HorizontalContentAlignment="Left"

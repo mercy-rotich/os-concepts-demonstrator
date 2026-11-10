@@ -1,0 +1,438 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Audit"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    x:Class="OS_Concepts_Demonstrator.Views.Audit.SystemAuditView"
+    x:DataType="vm:SystemAuditViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.inner">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+
+        <Style Selector="TextBlock.mono">
+            <Setter Property="FontFamily" Value="monospace"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="TextBlock.accent">
+            <Setter Property="Foreground" Value="#38BDF8"/>
+        </Style>
+
+        <!-- Coloured status badge: green = available / good, amber = partial / review, grey = not available -->
+        <Style Selector="Border.pill">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Background" Value="#2E2E44"/>
+        </Style>
+        <Style Selector="Border.pill > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#A7A7B5"/>
+        </Style>
+        <Style Selector="Border.pill.good">
+            <Setter Property="Background" Value="#14391F"/>
+        </Style>
+        <Style Selector="Border.pill.good > TextBlock">
+            <Setter Property="Foreground" Value="#86EFAC"/>
+        </Style>
+        <Style Selector="Border.pill.partial">
+            <Setter Property="Background" Value="#473A12"/>
+        </Style>
+        <Style Selector="Border.pill.partial > TextBlock">
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+        <Style Selector="Border.pill.none">
+            <Setter Property="Background" Value="#3A2A33"/>
+        </Style>
+        <Style Selector="Border.pill.none > TextBlock">
+            <Setter Property="Foreground" Value="#F0A5B5"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="32" Spacing="24">
+
+            <!-- PAGE HEADING -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="System Audit" FontSize="28" FontWeight="Bold"/>
+                    <TextBlock
+                        Text="Security-relevant events and settings: who logged in and when, who you are to the system, and how the system is configured. Read-only."
+                        FontSize="14"
+                        Opacity="0.7"
+                        TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding LastUpdated}" Classes="subtle"/>
+                </StackPanel>
+
+                <Button
+                    Grid.Column="1"
+                    Content="Refresh"
+                    Padding="18,10"
+                    VerticalAlignment="Top"
+                    IsEnabled="{Binding !IsLoading}"
+                    Command="{Binding RefreshCommand}"/>
+            </Grid>
+
+            <!-- CONCEPT -->
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+
+                    <TextBlock Text="What is a system audit?" Classes="sectionTitle"/>
+
+                    <TextBlock TextWrapping="Wrap" FontSize="14">
+                        <Run Text="Auditing is recording security-relevant events so that, after the fact, someone can answer who did what, when and from where. It also means checking that the system is configured safely. The full Linux Audit framework (auditd) can log every file access and system call, but it is a privileged tool. This page shows the audit trail that an ordinary account is allowed to read, and is explicit about what it cannot."/>
+                    </TextBlock>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+
+                        <Border Grid.Column="0" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Event trail" FontWeight="Bold"/>
+                                <TextBlock Text="Records of things that happened: logins, logouts, reboots, failed logins." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Identity" FontWeight="Bold"/>
+                                <TextBlock Text="Who the system believes you are, and the one ID that stays fixed from login onward." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Classes="inner">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Configuration review" FontWeight="Bold"/>
+                                <TextBlock Text="Kernel hardening settings and file permissions compared with common recommendations." Classes="subtle"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- WHAT THIS SYSTEM EXPOSES -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="What this system actually provides" Classes="sectionTitle"/>
+                        <TextBlock Text="Each source below was checked just now. Green is collected and shown on this page. Amber is only partly readable. Red means this account cannot get it, and the reason is given, so nothing on this page is guessed or filled with zeros."
+                                   Classes="subtle"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Sources}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:DataSourceStatusModel">
+                                <Border Classes="inner" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="130,*" ColumnSpacing="14">
+
+                                        <Border
+                                            Classes="pill"
+                                            Classes.good="{Binding IsAvailable}"
+                                            Classes.partial="{Binding IsPartial}"
+                                            Classes.none="{Binding IsUnavailable}">
+                                            <TextBlock Text="{Binding StatusText}"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" Spacing="3">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Provides}" Classes="label mono"/>
+                                            <TextBlock Text="{Binding Detail}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{Binding SourcesSummary}" Classes="subtle" Margin="4,-12,0,0"/>
+
+            <!-- IDENTITY -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Who you are, as the audit system sees it" Classes="sectionTitle"/>
+                        <TextBlock Text="Read from this application's own process (/proc/self)." Classes="subtle"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding IdentityRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:DetailRow">
+                                <Grid ColumnDefinitions="210,*" ColumnSpacing="14" Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Label}" Classes="label" VerticalAlignment="Top"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" FontSize="13"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- LOGIN HISTORY -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Login history" Classes="sectionTitle"/>
+                        <TextBlock Text="Decoded from the binary login record /var/log/wtmp. Each session is rebuilt by pairing a login record with the logout, shutdown or reboot record that ended it. Newest first." Classes="subtle"/>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding HistoryNote}" Foreground="#F87171" TextWrapping="Wrap" IsVisible="{Binding HistoryNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                    <Border Background="#292940" Padding="10,8" CornerRadius="6">
+                        <Grid ColumnDefinitions="110,70,80,190,*,80" ColumnSpacing="8">
+                            <TextBlock Text="User" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="Terminal" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="2" Text="From" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="3" Text="Login time" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="4" Text="Ended" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="5" Text="Duration" FontWeight="Bold" FontSize="12"/>
+                        </Grid>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding Sessions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:LoginSessionModel">
+                                <Border BorderBrush="#303044" BorderThickness="0,0,0,1" Padding="10,8">
+                                    <Grid ColumnDefinitions="110,70,80,190,*,80" ColumnSpacing="8">
+                                        <TextBlock Text="{Binding User}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Terminal}" Classes="mono"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding FromText}" FontSize="13"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding LoginText}" FontSize="13"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding EndText}" FontSize="13" Classes.accent="{Binding IsActive}"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding DurationText}" FontSize="13"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="System boots" FontWeight="SemiBold" Margin="0,10,0,0"/>
+
+                    <ItemsControl ItemsSource="{Binding Boots}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:BootRecordModel">
+                                <Grid ColumnDefinitions="230,*" ColumnSpacing="10" Margin="0,3">
+                                    <TextBlock Text="{Binding TimeText}" FontSize="13"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding KernelVersion, StringFormat='kernel {0}'}" Classes="subtle"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="Logged in right now (from /run/utmp)" FontWeight="SemiBold" Margin="0,10,0,0"/>
+
+                    <ItemsControl ItemsSource="{Binding CurrentSessions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:LoginSessionModel">
+                                <TextBlock FontSize="13" Margin="0,3">
+                                    <Run Text="{Binding User}" FontWeight="SemiBold"/>
+                                    <Run Text="  on  "/>
+                                    <Run Text="{Binding Terminal}" FontFamily="monospace"/>
+                                    <Run Text="  from  "/>
+                                    <Run Text="{Binding FromText}"/>
+                                    <Run Text="  since  "/>
+                                    <Run Text="{Binding LoginText}"/>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- RESTRICTED EVENT SOURCES -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Failed logins, authentication log and kernel messages" Classes="sectionTitle"/>
+                        <TextBlock Text="These are the most sensitive trails, so they are usually restricted. When one is readable its newest entries appear here; when it is not, the reason is shown instead." Classes="subtle"/>
+                    </StackPanel>
+
+                    <Border Classes="inner">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Failed login attempts" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding FailedLoginsNote}" Classes="subtle" IsVisible="{Binding FailedLoginsNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <ItemsControl ItemsSource="{Binding FailedLogins}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:FailedLoginModel">
+                                        <TextBlock FontSize="13" Margin="0,2">
+                                            <Run Text="{Binding TimeText}"/>
+                                            <Run Text="  tried user  "/>
+                                            <Run Text="{Binding UserTried}" FontWeight="SemiBold"/>
+                                            <Run Text="  from  "/>
+                                            <Run Text="{Binding From}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="inner">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Authentication log" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding AuthLogNote}" Classes="subtle" IsVisible="{Binding AuthLogNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <ItemsControl ItemsSource="{Binding AuthLogLines}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding}" Classes="mono" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="inner">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Kernel messages" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding KernelMessagesNote}" Classes="subtle" IsVisible="{Binding KernelMessagesNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <ItemsControl ItemsSource="{Binding KernelMessageLines}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding}" Classes="mono" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+            <!-- CONFIGURATION REVIEW -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Security configuration review" Classes="sectionTitle"/>
+                        <TextBlock Text="{Binding ConfigurationSummary}" FontWeight="SemiBold"/>
+                        <TextBlock
+                            Text="Current kernel settings (read from /proc/sys) compared with common hardening advice. 'Review' is a prompt to think, not a verdict: some settings are deliberately relaxed, for example on a machine used for security testing or development."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding ConfigurationChecks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:SecurityCheckModel">
+                                <Border Classes="inner" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="120,*,210" ColumnSpacing="14">
+
+                                        <Border
+                                            Classes="pill"
+                                            Classes.good="{Binding IsGood}"
+                                            Classes.partial="{Binding IsReview}"
+                                            Classes.none="{Binding IsUnknown}">
+                                            <TextBlock Text="{Binding StatusText}"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" Spacing="3">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Setting}" Classes="label mono"/>
+                                            <TextBlock Text="{Binding Explanation}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" Spacing="3">
+                                            <TextBlock Text="This system" Classes="label"/>
+                                            <TextBlock Text="{Binding CurrentValue}" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="13"/>
+                                            <TextBlock Text="{Binding Recommended, StringFormat='Recommended: {0}'}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- FILE PERMISSIONS -->
+            <Border Classes="card">
+                <StackPanel Spacing="14">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Sensitive file permissions" Classes="sectionTitle"/>
+                        <TextBlock Text="{Binding PermissionSummary}" FontWeight="SemiBold"/>
+                        <TextBlock
+                            Text="Permission bits are shown as 'rwx' for the owner, the group and everyone else. They can be read without being allowed to open the file, so even /etc/shadow can be checked. File owners are not checked here."
+                            Classes="subtle"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding PermissionChecks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:SecurityCheckModel">
+                                <Border Classes="inner" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="120,*,210" ColumnSpacing="14">
+
+                                        <Border
+                                            Classes="pill"
+                                            Classes.good="{Binding IsGood}"
+                                            Classes.partial="{Binding IsReview}"
+                                            Classes.none="{Binding IsUnknown}">
+                                            <TextBlock Text="{Binding StatusText}"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" Spacing="3">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Setting}" Classes="label mono"/>
+                                            <TextBlock Text="{Binding Explanation}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" Spacing="3">
+                                            <TextBlock Text="This system" Classes="label"/>
+                                            <TextBlock Text="{Binding CurrentValue}" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="13"/>
+                                            <TextBlock Text="{Binding Recommended, StringFormat='Recommended: {0}'}" Classes="subtle"/>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

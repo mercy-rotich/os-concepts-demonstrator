@@ -3,6 +3,8 @@ using OS_Concepts_Demonstrator.ViewModels.Memory;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OS_Concepts_Demonstrator.ViewModels.Dashboard;
 using OS_Concepts_Demonstrator.ViewModels.Processes;
+using OS_Concepts_Demonstrator.ViewModels.Accounting;
+using OS_Concepts_Demonstrator.ViewModels.Audit;
 using OS_Concepts_Demonstrator.ViewModels.Io;
 using OS_Concepts_Demonstrator.ViewModels.Ipc;
 using OS_Concepts_Demonstrator.ViewModels.OsServices;
@@ -27,6 +29,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private IpcManagementViewModel? _ipcManagement;
 
     private OsServicesViewModel? _osServices;
+
+    private ProcessAccountingViewModel? _processAccounting;
+
+    private SystemAuditViewModel? _systemAudit;
 
     [ObservableProperty]
     private ViewModelBase currentViewModel;
@@ -79,8 +85,21 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         CurrentViewModel = _osServices;
     }
 
+    public void ShowProcessAccounting()
+    {
+        _processAccounting ??= new ProcessAccountingViewModel();
+        CurrentViewModel = _processAccounting;
+    }
+
+    public void ShowSystemAudit()
+    {
+        _systemAudit ??= new SystemAuditViewModel();
+        CurrentViewModel = _systemAudit;
+    }
+
     public void Dispose()
     {
+        _processAccounting?.Dispose();
         _ipcManagement?.Dispose();
         _ioManagement?.Dispose();
         Dashboard.Dispose();

@@ -76,4 +76,24 @@ public partial class NavigationView : UserControl
             viewModel.ShowOsServices();
         }
     }
+
+    private void OnProcessAccountingClick(
+        object? sender,
+        Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            viewModel.ShowProcessAccounting();
+        }
+    }
+
+    private void OnSystemAuditClick(
+        object? sender,
+        Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            viewModel.ShowSystemAudit();
+        }
+    }
 }

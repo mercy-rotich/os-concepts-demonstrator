@@ -278,8 +278,8 @@
                             Classes="subtle"/>
                     </StackPanel>
 
-                    <!-- TOOLBAR -->
-                    <Grid ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="10">
+                    <!-- NAVIGATION -->
+                    <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10">
 
                         <Button
                             Grid.Column="0"
@@ -293,19 +293,103 @@
                             Padding="16,8"
                             Command="{Binding GoHomeCommand}"/>
 
-                        <Button
-                            Grid.Column="2"
-                            Content="Refresh"
-                            Padding="16,8"
-                            Command="{Binding RefreshCommand}"/>
-
                         <TextBox
-                            Grid.Column="3"
+                            Grid.Column="2"
                             Text="{Binding CurrentPath}"
                             IsReadOnly="True"
                             VerticalContentAlignment="Center"/>
 
                     </Grid>
+
+                    <!-- FILE ACTION TOOLBAR (buttons disable themselves when not allowed) -->
+                    <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8">
+                        <Button Content="New File" Padding="14,8" Command="{Binding NewFileCommand}"/>
+                        <Button Content="New Folder" Padding="14,8" Command="{Binding NewFolderCommand}"/>
+                        <Button Content="Rename" Padding="14,8" Command="{Binding RenameCommand}"/>
+                        <Button Content="Copy" Padding="14,8" Command="{Binding CopyCommand}"/>
+                        <Button Content="Move" Padding="14,8" Command="{Binding MoveCommand}"/>
+                        <Button Content="Paste here" Padding="14,8" Command="{Binding PasteCommand}"
+                                IsVisible="{Binding HasClipboard}"/>
+                        <Button Content="Delete" Padding="14,8" Command="{Binding DeleteCommand}"
+                                Foreground="#F87171"/>
+                        <Button Content="Properties" Padding="14,8" Command="{Binding PropertiesCommand}"/>
+                        <Button Content="Refresh" Padding="14,8" Command="{Binding RefreshCommand}"/>
+                    </WrapPanel>
+
+                    <!-- SEARCH BY NAME (recursive from the current folder) -->
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Search file names in this folder and its sub-folders (e.g. report, *.pdf)">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}"/>
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                        <Button Grid.Column="1" Content="Search" Padding="14,8" Command="{Binding SearchCommand}"/>
+                        <Button Grid.Column="2" Content="Clear search" Padding="14,8" Command="{Binding ClearSearchCommand}"
+                                IsVisible="{Binding IsSearchActive}"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding SearchSummary}" Foreground="#38BDF8" TextWrapping="Wrap" FontSize="13"
+                               IsVisible="{Binding SearchSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                    <!-- CLIPBOARD (item waiting to be pasted) -->
+                    <Border Background="#292940" CornerRadius="6" Padding="10" IsVisible="{Binding HasClipboard}">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBlock Text="{Binding ClipboardText}" TextWrapping="Wrap" FontSize="13" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Cancel" Command="{Binding CancelClipboardCommand}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- DELETE CONFIRMATION -->
+                    <Border Background="#3B1D26" BorderBrush="#F87171" BorderThickness="1" CornerRadius="6" Padding="12"
+                            IsVisible="{Binding IsDeleteConfirmationVisible}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding DeleteConfirmationText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Delete" Command="{Binding ConfirmDeleteCommand}" Foreground="#F87171"/>
+                                <Button Content="Cancel" Command="{Binding CancelDeleteCommand}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- OVERWRITE CONFIRMATION (Copy/Move onto an existing file) -->
+                    <Border Background="#3A2F1B" BorderBrush="#FBBF24" BorderThickness="1" CornerRadius="6" Padding="12"
+                            IsVisible="{Binding IsOverwriteConfirmationVisible}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding OverwriteConfirmationText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Replace" Command="{Binding ConfirmOverwriteCommand}"/>
+                                <Button Content="Cancel" Command="{Binding CancelOverwriteCommand}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- WHY THIS FOLDER IS READ-ONLY -->
+                    <Border Background="#1E2A3A" BorderBrush="#38BDF8" BorderThickness="1"
+                            CornerRadius="6" Padding="10" IsVisible="{Binding IsFolderReadOnly}">
+                        <TextBlock TextWrapping="Wrap" FontSize="13">
+                            <Run Text="Read-only location. " FontWeight="SemiBold" Foreground="#38BDF8"/>
+                            <Run Text="{Binding ReadOnlyReason}"/>
+                        </TextBlock>
+                    </Border>
+
+                    <!-- NAME PROMPT (New File / New Folder / Rename) -->
+                    <Border Background="#292940" BorderBrush="#8B5CF6" BorderThickness="1"
+                            CornerRadius="6" Padding="12" IsVisible="{Binding IsNamePromptVisible}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding NamePromptTitle}" FontWeight="SemiBold"/>
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                <TextBox Text="{Binding NamePromptInput, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="1" Content="{Binding NamePromptConfirmText}"
+                                        Command="{Binding ConfirmNamePromptCommand}" IsDefault="True"/>
+                                <Button Grid.Column="2" Content="Cancel" Command="{Binding CancelNamePromptCommand}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- RESULT OF THE LAST FILE OPERATION -->
+                    <TextBlock Text="{Binding OperationMessage}" IsVisible="{Binding HasOperationMessage}"
+                               Foreground="{Binding OperationMessageColor}" TextWrapping="Wrap"/>
 
                     <TextBlock Text="{Binding DirectorySummary}" Classes="subtle"/>
 
@@ -350,11 +434,21 @@
 
                                     <Grid ColumnDefinitions="*,70,90,150,110" ColumnSpacing="8">
 
-                                        <TextBlock
-                                            Text="{Binding Name}"
-                                            Classes.folder="{Binding IsDirectory}"
-                                            TextTrimming="CharacterEllipsis"
-                                            ToolTip.Tip="{Binding FullPath}"/>
+                                        <StackPanel>
+                                            <TextBlock
+                                                Text="{Binding Name}"
+                                                Classes.folder="{Binding IsDirectory}"
+                                                TextTrimming="CharacterEllipsis"
+                                                ToolTip.Tip="{Binding FullPath}"/>
+
+                                            <!-- Search results only: which sub-folder the item is in -->
+                                            <TextBlock
+                                                Text="{Binding Location, StringFormat='in {0}'}"
+                                                IsVisible="{Binding HasLocation}"
+                                                FontSize="11"
+                                                Opacity="0.6"
+                                                TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
 
                                         <TextBlock Grid.Column="1" Text="{Binding TypeText}" Opacity="0.8"/>
 
@@ -385,6 +479,80 @@
                             Text="{Binding SelectedEntryDetails}"
                             TextWrapping="Wrap"
                             FontSize="13"/>
+                    </Border>
+
+                    <!-- PROPERTIES PANEL (metadata read from the inode with statx) -->
+                    <Border Classes="inner" IsVisible="{Binding IsPropertiesVisible}">
+                        <StackPanel Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding SelectedProperties.Name, FallbackValue=''}"
+                                           FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <Button Grid.Column="1" Content="Close" Command="{Binding ClosePropertiesCommand}"/>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                                  RowSpacing="6" ColumnSpacing="12">
+                                <Grid.Styles>
+                                    <Style Selector="TextBlock">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="FontSize" Value="13"/>
+                                    </Style>
+                                    <Style Selector="TextBlock.key">
+                                        <Setter Property="Opacity" Value="0.7"/>
+                                    </Style>
+                                </Grid.Styles>
+
+                                <TextBlock Grid.Row="0" Classes="key" Text="Type"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedProperties.FileType, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="1" Classes="key" Text="Size"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedProperties.Size, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="2" Classes="key" Text="Size on disk"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedProperties.SizeOnDisk, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="3" Classes="key" Text="Created"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedProperties.Created, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="4" Classes="key" Text="Last modified"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedProperties.Modified, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="5" Classes="key" Text="Last accessed"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedProperties.Accessed, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="6" Classes="key" Text="Inode changed"/>
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedProperties.StatusChanged, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="7" Classes="key" Text="Permissions"/>
+                                <TextBlock Grid.Row="7" Grid.Column="1" FontFamily="monospace"
+                                           Text="{Binding SelectedProperties.Permissions, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="8" Classes="key" Text="Meaning"/>
+                                <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding SelectedProperties.PermissionsExplained, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="9" Classes="key" Text="Owner"/>
+                                <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding SelectedProperties.Owner, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="10" Classes="key" Text="Inode / hard links"/>
+                                <TextBlock Grid.Row="10" Grid.Column="1">
+                                    <Run Text="{Binding SelectedProperties.Inode, FallbackValue=''}"/>
+                                    <Run Text="  /  "/>
+                                    <Run Text="{Binding SelectedProperties.HardLinks, FallbackValue=''}"/>
+                                </TextBlock>
+
+                                <TextBlock Grid.Row="11" Classes="key" Text="Full path"/>
+                                <SelectableTextBlock Grid.Row="11" Grid.Column="1" FontSize="13" TextWrapping="Wrap"
+                                                     Text="{Binding SelectedProperties.FullPath, FallbackValue=''}"/>
+
+                                <TextBlock Grid.Row="12" Classes="key" Text="Link target"
+                                           IsVisible="{Binding SelectedProperties.IsSymbolicLink, FallbackValue=False}"/>
+                                <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding SelectedProperties.LinkTarget, FallbackValue=''}"
+                                           IsVisible="{Binding SelectedProperties.IsSymbolicLink, FallbackValue=False}"/>
+
+                                <TextBlock Grid.Row="13" Classes="key" Text="Demonstrator"/>
+                                <TextBlock Grid.Row="13" Grid.Column="1" Text="{Binding SelectedProperties.ModifyStatus, FallbackValue=''}"/>
+                            </Grid>
+                        </StackPanel>
                     </Border>
 
                 </StackPanel>

@@ -402,6 +402,22 @@ public class StorageService
         return listing;
     }
 
+    /// <summary>Builds a row for one path (used for search results). relativeTo sets the Location text.</summary>
+    public DirectoryEntryModel DescribeEntry(string path, string? relativeTo = null)
+    {
+        FileSystemInfo info = Directory.Exists(path) ? new DirectoryInfo(path) : new FileInfo(path);
+        DirectoryEntryModel entry = BuildEntry(info);
+
+        if (relativeTo is not null)
+        {
+            string? parent = Path.GetDirectoryName(path);
+            string location = parent is null ? string.Empty : Path.GetRelativePath(relativeTo, parent);
+            entry.Location = location == "." ? "(this folder)" : location;
+        }
+
+        return entry;
+    }
+
     private static DirectoryEntryModel BuildEntry(FileSystemInfo info)
     {
         var entry = new DirectoryEntryModel

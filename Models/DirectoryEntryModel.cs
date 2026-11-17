@@ -23,6 +23,11 @@ public class DirectoryEntryModel
 
     public string? LinkTarget { get; set; }
 
+    // Only for search results: the folder the item is in, relative to where the search started.
+    public string Location { get; set; } = string.Empty;
+
+    public bool HasLocation => !string.IsNullOrEmpty(Location);
+
     public string TypeText =>
         IsSymbolicLink ? "Link" : IsDirectory ? "Folder" : "File";
 

@@ -127,9 +127,11 @@ public partial class StorageManagementViewModel : ViewModelBase
             _ = NavigateAsync(mountPoint.Path);
     }
 
-    private async Task NavigateAsync(string path)
+    // selectPath: optional item to select after loading (e.g. a file that was just created).
+    private async Task NavigateAsync(string path, string? selectPath = null)
     {
         int id = ++_navigationId;
+        OnNavigationStarting();
         IsLoading = true;
 
         DirectoryListingModel listing = await Task.Run(() => _storageService.ListDirectory(path));
@@ -148,6 +150,7 @@ public partial class StorageManagementViewModel : ViewModelBase
         }
 
         ErrorMessage = string.Empty;
+        OnNavigationCompleted();
         CurrentPath = listing.Path;
 
         Entries.Clear();
@@ -155,7 +158,9 @@ public partial class StorageManagementViewModel : ViewModelBase
         foreach (DirectoryEntryModel entry in listing.Entries)
             Entries.Add(entry);
 
-        SelectedEntry = null;
+        SelectedEntry = selectPath is null
+            ? null
+            : System.Linq.Enumerable.FirstOrDefault(Entries, e => e.FullPath == selectPath);
         IsDirectoryEmpty = Entries.Count == 0;
 
         DirectorySummary =

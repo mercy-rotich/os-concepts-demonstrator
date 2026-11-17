@@ -105,7 +105,7 @@
             <StackPanel Spacing="6">
                 <TextBlock Text="OS Services" FontSize="28" FontWeight="Bold"/>
                 <TextBlock
-                    Text="The background programs (daemons) the operating system runs and watches over. Read-only: nothing here starts, stops or changes a service."
+                    Text="Background services (daemons) managed by the OS (read-only)."
                     FontSize="14"
                     Opacity="0.7"
                     TextWrapping="Wrap"/>
@@ -116,7 +116,7 @@
                 <StackPanel Spacing="10">
                     <TextBlock Text="What is a service?" Classes="sectionTitle"/>
                     <TextBlock TextWrapping="Wrap" FontSize="14">
-                        <Run Text="A service (or daemon) is a program that runs in the background with no window, for example printing, networking, logging or scheduled jobs. The first process the kernel starts, PID 1, is the init system. On this kind of system it is systemd: it starts services in the right order, restarts them if they crash, and keeps track of what each one is doing. Each service is described by a unit file and has a state, explained at the bottom of this page."/>
+                        <Run Text="A service (or daemon) is a program that runs in the background with no window, for example printing, networking, logging or scheduled jobs. The first process the kernel starts, PID 1, is the init system."/>
                     </TextBlock>
                 </StackPanel>
             </Border>
@@ -361,9 +361,8 @@
 
             <!-- GLOSSARY -->
             <Border Classes="card">
-                <StackPanel Spacing="10">
-
-                    <TextBlock Text="Reading a service's state" Classes="sectionTitle"/>
+                <Expander Header="Reading a service's state" IsExpanded="False">
+                <StackPanel Spacing="10" Margin="0,10,0,0">
 
                     <TextBlock TextWrapping="Wrap">
                         <Run Text="Status (active state + sub-state): " FontWeight="SemiBold"/>
@@ -391,6 +390,7 @@
                     </TextBlock>
 
                 </StackPanel>
+                </Expander>
             </Border>
 
         </StackPanel>

@@ -90,7 +90,7 @@
             <StackPanel Spacing="6">
                 <TextBlock Text="Process Accounting" FontSize="28" FontWeight="Bold"/>
                 <TextBlock
-                    Text="How much of the computer each process has used: CPU time, memory, input and output, and when it started. Read-only."
+                    Text="CPU time, memory, I/O and start time of each process (read-only)."
                     FontSize="14"
                     Opacity="0.7"
                     TextWrapping="Wrap"/>
@@ -103,7 +103,7 @@
                     <TextBlock Text="What is process accounting?" Classes="sectionTitle"/>
 
                     <TextBlock TextWrapping="Wrap" FontSize="14">
-                        <Run Text="Accounting means keeping a record of who used which resources. The kernel measures every process as it runs: how long the CPU worked for it, how much memory it holds, how much data it moved, and how often the scheduler switched it. This is the basis for billing in shared systems, finding runaway programs and investigating incidents."/>
+                        <Run Text="Accounting means keeping a record of who used which resources. The kernel measures every process as it runs: how long the CPU worked for it, how much memory it holds, how much data it moved, and how often the scheduler switched it."/>
                     </TextBlock>
 
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
@@ -111,14 +111,14 @@
                         <Border Grid.Column="0" Classes="inner">
                             <StackPanel Spacing="6">
                                 <TextBlock Text="Live accounting (shown below)" FontWeight="Bold"/>
-                                <TextBlock Text="Counters the kernel keeps for every running process and shows in /proc. Anyone can read most of them. They describe processes that exist right now." Classes="subtle"/>
+                                <TextBlock Text="Counters the kernel keeps for every running process and shows in /proc." Classes="subtle"/>
                             </StackPanel>
                         </Border>
 
                         <Border Grid.Column="1" Classes="inner">
                             <StackPanel Spacing="6">
                                 <TextBlock Text="Historical accounting (optional)" FontWeight="Bold"/>
-                                <TextBlock Text="BSD process accounting writes one record each time a process exits, so its usage is remembered after it is gone. An administrator must turn it on. See the next section for whether it is available here." Classes="subtle"/>
+                                <TextBlock Text="BSD process accounting writes one record each time a process exits, so its usage is remembered after it is gone. An administrator must turn it on." Classes="subtle"/>
                             </StackPanel>
                         </Border>
 
@@ -133,8 +133,6 @@
 
                     <StackPanel Spacing="4">
                         <TextBlock Text="What this system actually provides" Classes="sectionTitle"/>
-                        <TextBlock Text="Each source below was checked just now. Green is collected and shown on this page. Amber is only partly readable. Red means this account cannot get it, and the reason is given, so nothing on this page is guessed or filled with zeros."
-                                   Classes="subtle"/>
                     </StackPanel>
 
                     <ItemsControl ItemsSource="{Binding Sources}">
@@ -173,7 +171,7 @@
                     <TextBlock Text="{Binding Summary}" Classes="subtle"/>
                     <TextBlock Text="{Binding LastUpdated}" Classes="subtle"/>
                     <TextBlock
-                        Text="Measuring... the CPU percentage appears after the second reading (about two seconds). The kernel only keeps running totals, so a rate is the change between two readings divided by the time between them."
+                        Text="Measuring... the CPU percentage appears after the second reading (about two seconds)."
                         IsVisible="{Binding IsMeasuring}"
                         Classes="subtle accent"/>
                     <TextBlock Text="{Binding Notices}" IsVisible="{Binding HasNotices}" Foreground="#F87171" TextWrapping="Wrap"/>
@@ -304,9 +302,8 @@
 
             <!-- GLOSSARY -->
             <Border Classes="card">
-                <StackPanel Spacing="10">
-
-                    <TextBlock Text="Reading the columns" Classes="sectionTitle"/>
+                <Expander Header="Reading the columns" IsExpanded="False">
+                <StackPanel Spacing="10" Margin="0,10,0,0">
 
                     <TextBlock TextWrapping="Wrap">
                         <Run Text="CPU now: " FontWeight="SemiBold"/>
@@ -339,6 +336,7 @@
                     </TextBlock>
 
                 </StackPanel>
+                </Expander>
             </Border>
 
         </StackPanel>

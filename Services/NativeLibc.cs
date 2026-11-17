@@ -46,4 +46,10 @@ internal static class NativeLibc
 
     [DllImport(Library, EntryPoint = "gnu_get_libc_version")]
     internal static extern nint GetLibcVersion();
+
+    [DllImport(Library, EntryPoint = "kill", SetLastError = true)]
+    internal static extern int Kill(int pid, int signal);
+
+    [DllImport(Library, EntryPoint = "setpriority", SetLastError = true)]
+    internal static extern int SetPriority(int which, uint who, int prio);
 }

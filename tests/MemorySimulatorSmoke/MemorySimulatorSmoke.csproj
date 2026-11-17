@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>MemorySimulatorSmoke</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Services\MemoryAllocationSimulator.cs" Link="MemoryAllocationSimulator.cs" />
+    <Compile Include="..\..\Models\MemoryBlockModel.cs" Link="MemoryBlockModel.cs" />
+    <Compile Include="..\..\Models\AllocationResult.cs" Link="AllocationResult.cs" />
+  </ItemGroup>
+</Project>

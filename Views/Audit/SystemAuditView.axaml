@@ -86,7 +86,7 @@
                 <StackPanel Spacing="6">
                     <TextBlock Text="System Audit" FontSize="28" FontWeight="Bold"/>
                     <TextBlock
-                        Text="Security-relevant events and settings: who logged in and when, who you are to the system, and how the system is configured. Read-only."
+                        Text="Logins, identity and security configuration (read-only)."
                         FontSize="14"
                         Opacity="0.7"
                         TextWrapping="Wrap"/>
@@ -109,7 +109,7 @@
                     <TextBlock Text="What is a system audit?" Classes="sectionTitle"/>
 
                     <TextBlock TextWrapping="Wrap" FontSize="14">
-                        <Run Text="Auditing is recording security-relevant events so that, after the fact, someone can answer who did what, when and from where. It also means checking that the system is configured safely. The full Linux Audit framework (auditd) can log every file access and system call, but it is a privileged tool. This page shows the audit trail that an ordinary account is allowed to read, and is explicit about what it cannot."/>
+                        <Run Text="Auditing is recording security-relevant events so that, after the fact, someone can answer who did what, when and from where. It also means checking that the system is configured safely."/>
                     </TextBlock>
 
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
@@ -146,8 +146,6 @@
 
                     <StackPanel Spacing="4">
                         <TextBlock Text="What this system actually provides" Classes="sectionTitle"/>
-                        <TextBlock Text="Each source below was checked just now. Green is collected and shown on this page. Amber is only partly readable. Red means this account cannot get it, and the reason is given, so nothing on this page is guessed or filled with zeros."
-                                   Classes="subtle"/>
                     </StackPanel>
 
                     <ItemsControl ItemsSource="{Binding Sources}">
@@ -210,7 +208,7 @@
 
                     <StackPanel Spacing="4">
                         <TextBlock Text="Login history" Classes="sectionTitle"/>
-                        <TextBlock Text="Decoded from the binary login record /var/log/wtmp. Each session is rebuilt by pairing a login record with the logout, shutdown or reboot record that ended it. Newest first." Classes="subtle"/>
+                        <TextBlock Text="Decoded from the binary login record /var/log/wtmp." Classes="subtle"/>
                     </StackPanel>
 
                     <TextBlock Text="{Binding HistoryNote}" Foreground="#F87171" TextWrapping="Wrap" IsVisible="{Binding HistoryNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
@@ -283,7 +281,7 @@
 
                     <StackPanel Spacing="4">
                         <TextBlock Text="Failed logins, authentication log and kernel messages" Classes="sectionTitle"/>
-                        <TextBlock Text="These are the most sensitive trails, so they are usually restricted. When one is readable its newest entries appear here; when it is not, the reason is shown instead." Classes="subtle"/>
+                        <TextBlock Text="These are the most sensitive trails, so they are usually restricted." Classes="subtle"/>
                     </StackPanel>
 
                     <Border Classes="inner">
@@ -345,7 +343,7 @@
                         <TextBlock Text="Security configuration review" Classes="sectionTitle"/>
                         <TextBlock Text="{Binding ConfigurationSummary}" FontWeight="SemiBold"/>
                         <TextBlock
-                            Text="Current kernel settings (read from /proc/sys) compared with common hardening advice. 'Review' is a prompt to think, not a verdict: some settings are deliberately relaxed, for example on a machine used for security testing or development."
+                            Text="Current kernel settings (read from /proc/sys) compared with common hardening advice."
                             Classes="subtle"/>
                     </StackPanel>
 
@@ -392,7 +390,7 @@
                         <TextBlock Text="Sensitive file permissions" Classes="sectionTitle"/>
                         <TextBlock Text="{Binding PermissionSummary}" FontWeight="SemiBold"/>
                         <TextBlock
-                            Text="Permission bits are shown as 'rwx' for the owner, the group and everyone else. They can be read without being allowed to open the file, so even /etc/shadow can be checked. File owners are not checked here."
+                            Text="Permission bits are shown as 'rwx' for the owner, the group and everyone else."
                             Classes="subtle"/>
                     </StackPanel>
 

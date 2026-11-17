@@ -69,7 +69,7 @@
             <StackPanel Spacing="6">
                 <TextBlock Text="Interprocess Communication" FontSize="28" FontWeight="Bold"/>
                 <TextBlock
-                    Text="How separate programs exchange data. Every demo below uses real kernel objects and controlled child processes."
+                    Text="Separate programs exchanging data through real kernel objects."
                     FontSize="14"
                     Opacity="0.7"/>
             </StackPanel>
@@ -81,7 +81,7 @@
                     <TextBlock Text="Why is IPC needed?" Classes="sectionTitle"/>
 
                     <TextBlock Classes="body">
-                        <Run Text="Each process has its own private virtual address space. The kernel stops one process from reading or changing another's memory, which keeps the system safe and stable. When processes do need to cooperate, they must ask the kernel to help. Linux offers several IPC mechanisms; three classic ones are shown here."/>
+                        <Run Text="Each process has its own private virtual address space. The kernel stops one process from reading or changing another's memory, which keeps the system safe and stable."/>
                     </TextBlock>
 
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
@@ -211,11 +211,8 @@
                         <StackPanel Spacing="8">
                             <TextBlock Text="WHAT IS HAPPENING" Classes="heading"/>
                             <TextBlock Classes="body">
-                                <Run Text="A sender and a receiver run independently and only ever meet in a queue that holds at most 5 messages. Unlike a pipe, every item is a complete message with its own boundaries. The receiver is deliberately slow (about 0.9 s per message). If you send faster than it can work, the queue fills up and the sender is made to wait. This waiting is how real operating-system message queues (such as POSIX message queues) keep a fast producer from overwhelming a slow consumer."/>
+                                <Run Text="A sender and a receiver run independently and only ever meet in a queue that holds at most 5 messages. Unlike a pipe, every item is a complete message with its own boundaries."/>
                             </TextBlock>
-                            <TextBlock
-                                Text="Here both sides are components inside this application. Real message queues work the same way between separate processes."
-                                Classes="subtle"/>
                         </StackPanel>
                     </Border>
 
@@ -363,7 +360,7 @@
                             <TextBlock Text="WHY SHARED MEMORY NEEDS SYNCHRONISATION: THE RACE CONDITION" Classes="heading"/>
 
                             <TextBlock Classes="body">
-                                <Run Text="Two threads each add 1 to a counter stored in the shared region, one million times. 'Add 1' is really three steps: read the value, add one, write it back. If both threads read the same value before either writes, one addition is lost. The run is repeated with a lock, which lets only one thread through those three steps at a time."/>
+                                <Run Text="Two threads each add 1 to a counter stored in the shared region, one million times. 'Add 1' is really three steps: read the value, add one, write it back."/>
                             </TextBlock>
 
                             <StackPanel Orientation="Horizontal" Spacing="10">

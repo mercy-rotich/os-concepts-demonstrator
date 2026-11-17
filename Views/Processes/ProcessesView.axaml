@@ -197,6 +197,9 @@
                 CornerRadius="12"
                 Padding="20">
 
+                <!-- Scrolls when the details + actions are taller than the window,
+                     so the confirmation boxes and messages are never cut off. -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="20">
 
                     <TextBlock
@@ -209,12 +212,12 @@
                         Text="Select a process from the list to view its details."
                         TextWrapping="Wrap"
                         Opacity="0.7"
-                        IsVisible="{Binding SelectedProcess, Converter={x:Static ObjectConverters.IsNull}}"/>
+                        IsVisible="{Binding !HasSelection}"/>
 
                     <!-- SELECTED PROCESS -->
                     <StackPanel
                         Spacing="16"
-                        IsVisible="{Binding SelectedProcess}">
+                        IsVisible="{Binding HasSelection}">
 
                         <Border
                             Background="#292940"
@@ -228,7 +231,7 @@
                                     FontSize="13"/>
 
                                 <TextBlock
-                                    Text="{Binding SelectedProcess.Name}"
+                                    Text="{Binding DetailName}"
                                     FontSize="16"
                                     FontWeight="Bold"
                                     TextWrapping="Wrap"/>
@@ -243,7 +246,7 @@
                                 FontSize="13"/>
 
                             <TextBlock
-                                Text="{Binding SelectedProcess.ProcessId}"
+                                Text="{Binding DetailProcessId}"
                                 FontSize="16"
                                 FontWeight="SemiBold"/>
                         </StackPanel>
@@ -255,9 +258,35 @@
                                 FontSize="13"/>
 
                             <TextBlock
-                                Text="{Binding SelectedProcess.MemoryUsageMb, StringFormat='{}{0:F2} MB'}"
+                                Text="{Binding DetailMemory}"
                                 FontSize="16"
                                 FontWeight="SemiBold"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock
+                                Text="Status"
+                                Opacity="0.7"
+                                FontSize="13"/>
+
+                            <TextBlock
+                                Text="{Binding DetailStatus}"
+                                FontSize="16"
+                                FontWeight="SemiBold"/>
+
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock
+                                Text="Priority (nice)"
+                                Opacity="0.7"
+                                FontSize="13"/>
+
+                            <TextBlock
+                                Text="{Binding DetailPriority}"
+                                FontSize="16"
+                                FontWeight="SemiBold"/>
+
                         </StackPanel>
 
                         <StackPanel Spacing="5">
@@ -267,17 +296,135 @@
                                 FontSize="13"/>
 
                             <TextBlock
-                                Text="{Binding SelectedProcess.StartTime,
-                                 StringFormat='{}{0:dd MMM yyyy, HH:mm:ss}',
-                                 TargetNullValue='Unavailable'}"
+                                Text="{Binding DetailStartTime}"
                                 FontSize="16"
                                 FontWeight="SemiBold"/>
 
                         </StackPanel>
 
+                        <Border
+                            Background="#292940"
+                            CornerRadius="8"
+                            Padding="14">
+
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Text="Process Actions"
+                                    FontSize="16"
+                                    FontWeight="SemiBold"/>
+
+                                <TextBlock
+                                    Text="Protected system processes cannot be terminated or reprioritized from this panel."
+                                    FontSize="12"
+                                    Opacity="0.7"
+                                    IsVisible="{Binding IsSelectedProcessProtected}"
+                                    TextWrapping="Wrap"/>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                    <Button
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Content="Suspend"
+                                        IsEnabled="{Binding CanSuspend}"
+                                        Command="{Binding SuspendCommand}"/>
+
+                                    <Button
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Content="Resume"
+                                        IsEnabled="{Binding CanResume}"
+                                        Command="{Binding ResumeCommand}"/>
+
+                                    <Button
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Content="Terminate"
+                                        IsEnabled="{Binding CanTerminate}"
+                                        Command="{Binding AskTerminateCommand}"/>
+
+                                    <Button
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Content="Force Kill"
+                                        IsEnabled="{Binding CanForceKill}"
+                                        Command="{Binding AskForceKillCommand}"/>
+
+                                    <Button
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Content="Refresh"
+                                        Command="{Binding RefreshSelectedCommand}"
+                                        IsEnabled="{Binding !IsLoading}"/>
+                                </Grid>
+
+                                <!-- Confirmations and the result message sit directly under the
+                                     buttons so they appear where the user just clicked. -->
+                                <Border
+                                    Background="#3A2F1B"
+                                    BorderBrush="#FBBF24"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="10"
+                                    IsVisible="{Binding ShowTerminateConfirmation}">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock
+                                            Text="Confirm graceful termination (SIGTERM)?"
+                                            FontWeight="SemiBold"
+                                            TextWrapping="Wrap"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="Confirm" Command="{Binding ConfirmTerminateCommand}"/>
+                                            <Button Content="Cancel" Command="{Binding CancelTerminateCommand}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border
+                                    Background="#3B1D26"
+                                    BorderBrush="#F87171"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="10"
+                                    IsVisible="{Binding ShowForceKillConfirmation}">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock
+                                            Text="Confirm force kill (SIGKILL)? Use only if graceful termination fails."
+                                            FontWeight="SemiBold"
+                                            TextWrapping="Wrap"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="Confirm" Command="{Binding ConfirmForceKillCommand}"/>
+                                            <Button Content="Cancel" Command="{Binding CancelForceKillCommand}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock
+                                    Text="{Binding ActionMessage}"
+                                    IsVisible="{Binding HasActionMessage}"
+                                    TextWrapping="Wrap"
+                                    Foreground="{Binding ActionMessageColor}"/>
+
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{Binding PriorityInput, UpdateSourceTrigger=PropertyChanged}"
+                                        PlaceholderText="Nice value (-20 to 19)"
+                                        IsEnabled="{Binding CanChangePriority}"/>
+
+                                    <Button
+                                        Grid.Column="1"
+                                        Content="Change Priority"
+                                        IsEnabled="{Binding CanChangePriority}"
+                                        Command="{Binding ChangePriorityCommand}"/>
+                                </Grid>
+
+                            </StackPanel>
+
+                        </Border>
+
                     </StackPanel>
 
                 </StackPanel>
+                </ScrollViewer>
 
             </Border>
 

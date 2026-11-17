@@ -1,0 +1,225 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Memory"
+    xmlns:models="using:OS_Concepts_Demonstrator.Models"
+    xmlns:controls="using:OS_Concepts_Demonstrator.Controls"
+    x:Class="OS_Concepts_Demonstrator.Views.Memory.MemoryAllocationSimulatorView"
+    x:DataType="vm:MemoryAllocationSimulatorViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#1B1B2B"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.stat">
+            <Setter Property="Background" Value="#222236"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="14"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionTitle">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="TextBlock.statLabel">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+        </Style>
+
+        <Style Selector="TextBlock.statValue">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- The yellow border marks everything inside as SIMULATED, distinct from the live RAM cards above. -->
+    <Border Classes="card" BorderBrush="#FBBF24" BorderThickness="1">
+
+        <StackPanel Spacing="20">
+
+            <!-- HEADER -->
+            <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Memory Allocation Simulator" Classes="sectionTitle" VerticalAlignment="Center"/>
+                    <Border Background="#3A2F1B" BorderBrush="#FBBF24" BorderThickness="1"
+                            CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
+                        <TextBlock Text="SIMULATION" Foreground="#FBBF24" FontSize="12" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+
+                <TextBlock Classes="subtle"
+                           Text="An educational model of how an operating system hands out memory. The numbers below are a pretend 1024 KB address space kept in the app. Nothing here allocates, frees or reads your real RAM."/>
+
+                <TextBlock TextWrapping="Wrap" FontSize="13">
+                    <Run Text="Strategy: " FontWeight="SemiBold"/>
+                    <Run Text="contiguous allocation with First Fit. Each process needs one unbroken block. The allocator scans holes from address 0 and uses the first one that is large enough, splitting off any leftover as a smaller hole." />
+                </TextBlock>
+            </StackPanel>
+
+            <!-- STATISTICS -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+                <Border Grid.Column="0" Classes="stat">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Total simulated" Classes="statLabel"/>
+                        <TextBlock Text="{Binding TotalText}" Classes="statValue"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Classes="stat">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Allocated" Classes="statLabel"/>
+                        <TextBlock Text="{Binding AllocatedText}" Classes="statValue" Foreground="#A78BFA"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Classes="stat">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Free (remaining)" Classes="statLabel"/>
+                        <TextBlock Text="{Binding FreeText}" Classes="statValue"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Classes="stat">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Free holes / largest" Classes="statLabel"/>
+                        <TextBlock Classes="statValue">
+                            <Run Text="{Binding HolesText}"/>
+                            <Run Text=" / " Foreground="Gray"/>
+                            <Run Text="{Binding LargestHoleText}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- UTILISATION + FRAGMENTATION -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" RowDefinitions="Auto,Auto" RowSpacing="6">
+                <ProgressBar Grid.Row="0" Minimum="0" Maximum="100" Height="12"
+                             Value="{Binding UtilisationPercent}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding UtilisationText}" FontWeight="Bold"/>
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Classes="subtle">
+                    <Run Text="External fragmentation: "/>
+                    <Run Text="{Binding FragmentationText}" FontWeight="Bold"/>
+                    <Run Text="  (the share of free memory that lies outside the largest hole. 0% means all free memory is one contiguous hole.)"/>
+                </TextBlock>
+            </Grid>
+
+            <!-- MEMORY MAP -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Memory map (address 0 on the left)" FontWeight="SemiBold"/>
+                <controls:MemoryMapBar Height="80"
+                                       Blocks="{Binding MapBlocks}"
+                                       TotalKb="{Binding TotalKb}"
+                                       SelectedAllocationId="{Binding SelectedAllocationId}"/>
+                <StackPanel Orientation="Horizontal" Spacing="18">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Border Width="14" Height="14" Background="#8B5CF6" CornerRadius="3"/>
+                        <TextBlock Text="Allocated (one colour per allocation)" FontSize="12" Opacity="0.8"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Border Width="14" Height="14" Background="#374151" BorderBrush="#6B7280" BorderThickness="1" CornerRadius="3"/>
+                        <TextBlock Text="Free hole (hatched)" FontSize="12" Opacity="0.8"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Border Width="14" Height="14" BorderBrush="White" BorderThickness="2" CornerRadius="3"/>
+                        <TextBlock Text="Selected" FontSize="12" Opacity="0.8"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- CONTROLS -->
+            <Grid ColumnDefinitions="*,140,Auto,Auto,Auto" ColumnSpacing="10">
+                <TextBox Grid.Column="0"
+                         Text="{Binding ProcessNameInput, UpdateSourceTrigger=PropertyChanged}"
+                         PlaceholderText="Process name (e.g. P1)"/>
+                <TextBox Grid.Column="1"
+                         Text="{Binding SizeInput, UpdateSourceTrigger=PropertyChanged}"
+                         PlaceholderText="Size in KB"/>
+                <Button Grid.Column="2" Content="Allocate" Command="{Binding AllocateCommand}" Padding="16,8"/>
+                <Button Grid.Column="3" Content="Deallocate Selected" Command="{Binding DeallocateCommand}"
+                        IsEnabled="{Binding CanDeallocate}" Padding="16,8"/>
+                <Button Grid.Column="4" Content="Release All" Command="{Binding AskReleaseAllCommand}" Padding="16,8"/>
+            </Grid>
+
+            <!-- RELEASE ALL CONFIRMATION -->
+            <Border Background="#3A2F1B" BorderBrush="#FBBF24" BorderThickness="1" CornerRadius="6" Padding="10"
+                    IsVisible="{Binding ShowReleaseAllConfirmation}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Release every simulated allocation? The allocation history is kept."
+                               FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Confirm" Command="{Binding ConfirmReleaseAllCommand}"/>
+                        <Button Content="Cancel" Command="{Binding CancelReleaseAllCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- RESULT / EXPLANATION OF THE LAST ACTION -->
+            <TextBlock Text="{Binding Message}" IsVisible="{Binding HasMessage}"
+                       Foreground="{Binding MessageColor}" TextWrapping="Wrap"/>
+
+            <!-- BLOCK LIST + HISTORY -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+
+                <Border Grid.Column="0" Classes="stat">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Memory blocks" FontWeight="SemiBold" FontSize="16"/>
+                        <TextBlock Text="Select an allocated block, then press Deallocate Selected." Classes="subtle"/>
+                        <ListBox ItemsSource="{Binding Blocks}"
+                                 SelectedItem="{Binding SelectedBlock, Mode=TwoWay}"
+                                 Background="Transparent" MaxHeight="280">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:MemoryBlockModel">
+                                    <Grid ColumnDefinitions="16,*,80,80" ColumnSpacing="10">
+                                        <Border Width="14" Height="14" CornerRadius="3" Background="{Binding StatusColor}"
+                                                VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding OwnerText}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding AddressRange}" FontSize="12" Opacity="0.7"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Text="{Binding SizeKb, StringFormat='{}{0} KB'}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding StatusText}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.8"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Classes="stat">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Allocation history" FontWeight="SemiBold" FontSize="16"/>
+                        <TextBlock Text="No allocations yet. Try allocating a few blocks, freeing some in the middle, then asking for a large block."
+                                   Classes="subtle" IsVisible="{Binding !HasHistory}"/>
+                        <ScrollViewer MaxHeight="280">
+                            <ItemsControl ItemsSource="{Binding History}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:AllocationHistoryEntry">
+                                        <Grid ColumnDefinitions="64,96,*" ColumnSpacing="8" Margin="0,3">
+                                            <TextBlock Text="{Binding TimeText}" FontSize="12" Opacity="0.7"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Action}" FontSize="12"
+                                                       FontWeight="Bold" Foreground="{Binding ActionColor}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Details}" FontSize="12" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+        </StackPanel>
+
+    </Border>
+
+</UserControl>

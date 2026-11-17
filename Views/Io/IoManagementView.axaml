@@ -63,7 +63,7 @@
             <StackPanel Spacing="6">
                 <TextBlock Text="I/O Management" FontSize="28" FontWeight="Bold"/>
                 <TextBlock
-                    Text="How the operating system talks to disks, network cards and input devices (read-only)."
+                    Text="Disks, network cards and input devices (read-only)."
                     FontSize="14"
                     Opacity="0.7"/>
                 <TextBlock Text="{Binding LastUpdated}" Classes="subtle"/>
@@ -114,7 +114,7 @@
             </Grid>
 
             <TextBlock
-                Text="Measuring... speeds appear after the second reading (about two seconds). The kernel only keeps running totals, so a speed is the change between two readings divided by the time between them."
+                Text="Measuring... speeds appear after the second reading (about two seconds)."
                 IsVisible="{Binding IsMeasuring}"
                 Classes="subtle accent"/>
 
@@ -125,7 +125,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Storage Devices (block devices)" Classes="sectionTitle"/>
                         <TextBlock
-                            Text="Block devices transfer data in fixed-size blocks and allow random access. Counters come from /proc/diskstats."
+                            Text="Block devices transfer data in fixed-size blocks and allow random access."
                             Classes="subtle"/>
                     </StackPanel>
 
@@ -213,7 +213,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Network Interfaces" Classes="sectionTitle"/>
                         <TextBlock
-                            Text="Network devices move data as packets. Counters come from /proc/net/dev. The summary above counts wired and wireless interfaces only."
+                            Text="Network devices move data as packets."
                             Classes="subtle"/>
                     </StackPanel>
 
@@ -326,7 +326,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Input Devices (character devices)" Classes="sectionTitle"/>
                         <TextBlock
-                            Text="Keyboards, mice and touchpads deliver a stream of events one at a time, with no fixed block size. The kernel lists them in /proc/bus/input/devices."
+                            Text="Keyboards, mice and touchpads deliver a stream of events one at a time, with no fixed block size."
                             Classes="subtle"/>
                     </StackPanel>
 
@@ -461,9 +461,8 @@
 
             <!-- GLOSSARY -->
             <Border Classes="card">
-                <StackPanel Spacing="10">
-
-                    <TextBlock Text="What do these numbers mean?" Classes="sectionTitle"/>
+                <Expander Header="What do these numbers mean?" IsExpanded="False">
+                <StackPanel Spacing="10" Margin="0,10,0,0">
 
                     <TextBlock TextWrapping="Wrap">
                         <Run Text="Read / write speed (throughput): " FontWeight="SemiBold"/>
@@ -506,6 +505,7 @@
                     </TextBlock>
 
                 </StackPanel>
+                </Expander>
             </Border>
 
         </StackPanel>

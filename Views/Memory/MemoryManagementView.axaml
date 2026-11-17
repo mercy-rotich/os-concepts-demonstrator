@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:OS_Concepts_Demonstrator.ViewModels.Memory"
     xmlns:controls="using:OS_Concepts_Demonstrator.Controls"
+    xmlns:views="using:OS_Concepts_Demonstrator.Views.Memory"
     x:Class="OS_Concepts_Demonstrator.Views.Memory.MemoryManagementView"
     x:DataType="vm:MemoryManagementViewModel">
 
@@ -71,6 +72,9 @@
                     TextWrapping="Wrap"/>
 
             </Border>
+
+            <TextBlock Text="LIVE SYSTEM MEMORY  ·  read from /proc/meminfo"
+                       FontSize="12" FontWeight="Bold" Foreground="#38BDF8"/>
 
             <!-- MEMORY OVERVIEW -->
             <Grid ColumnDefinitions="*,*,*"
@@ -224,6 +228,15 @@
                 </StackPanel>
 
             </Border>
+
+            <!-- EDUCATIONAL SIMULATION: disabled for now. To re-enable, uncomment this block
+                 and the Simulator property in MemoryManagementViewModel.cs.
+
+            <TextBlock Text="SIMULATION  ·  does not touch real memory"
+                       FontSize="12" FontWeight="Bold" Foreground="#FBBF24" Margin="0,16,0,0"/>
+
+            <views:MemoryAllocationSimulatorView DataContext="{Binding Simulator}"/>
+            -->
 
         </StackPanel>
 

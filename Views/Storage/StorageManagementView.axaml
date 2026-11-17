@@ -51,7 +51,7 @@
                     FontWeight="Bold"/>
 
                 <TextBlock
-                    Text="Explore physical disks, filesystems, mount points and directories (read-only)."
+                    Text="Disks, filesystems, mount points and directories (read-only)."
                     FontSize="14"
                     Opacity="0.7"/>
 
@@ -91,9 +91,6 @@
 
                     <StackPanel Spacing="4">
                         <TextBlock Text="Physical Storage Devices" Classes="sectionTitle"/>
-                        <TextBlock
-                            Text="The hardware: each disk and the partitions it is divided into."
-                            Classes="subtle"/>
                     </StackPanel>
 
                     <ItemsControl ItemsSource="{Binding Disks}">
@@ -140,9 +137,6 @@
 
                     <StackPanel Spacing="4">
                         <TextBlock Text="Mounted Filesystems" Classes="sectionTitle"/>
-                        <TextBlock
-                            Text="Each card is one filesystem with its capacity. The mount points listed inside it are where it appears in the directory tree."
-                            Classes="subtle"/>
                     </StackPanel>
 
                     <TextBlock
@@ -280,7 +274,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Directory Browser" Classes="sectionTitle"/>
                         <TextBlock
-                            Text="Double-click a folder to open it. Folders show no size because calculating it would mean reading the whole tree."
+                            Text="Double-click a folder to open it. Folder sizes are not shown (it would mean reading the whole tree)."
                             Classes="subtle"/>
                     </StackPanel>
 

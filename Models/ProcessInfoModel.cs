@@ -10,4 +10,16 @@ public class ProcessInfoModel
     public double MemoryUsageMb { get; set; }
 
     public DateTime? StartTime { get; set; }
+
+    // Linux process state letter from /proc/[pid]/stat (for example R, S, T, Z).
+    public string StatusCode { get; set; } = "?";
+
+    // Human-readable state text derived from StatusCode.
+    public string StatusText { get; set; } = "Unknown";
+
+    // starttime field from /proc/[pid]/stat, used to reduce PID reuse risks.
+    public long? StartTicks { get; set; }
+
+    // Unix nice value (-20 highest priority, 19 lowest priority).
+    public int? NiceValue { get; set; }
 }

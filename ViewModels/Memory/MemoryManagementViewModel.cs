@@ -20,6 +20,11 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
 
     public ObservableCollection<MemoryHistoryPoint> MemoryHistory { get; } = new();
 
+    // Educational allocation simulator shown at the bottom of the page. Kept as a separate
+    // ViewModel so simulated memory never mixes with the real /proc/meminfo readings above.
+    // Disabled for now; uncomment together with the simulator block in MemoryManagementView.axaml.
+    // public MemoryAllocationSimulatorViewModel Simulator { get; } = new();
+
     // A fresh snapshot each time, so the chart's Points property sees a new reference and redraws.
     public IEnumerable<MemoryHistoryPoint> MemoryChartPoints =>
         MemoryHistory.ToList();
@@ -95,6 +100,9 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
 
         ErrorMessage = string.Empty;
 
+        // Keep the cards in step with the graph (they used to change only when the button was pressed).
+        ShowMemoryInfo(info);
+
         var point = new MemoryHistoryPoint
         {
             RecordedAt = DateTime.Now,
@@ -156,6 +164,13 @@ public partial class MemoryManagementViewModel : ViewModelBase, IDisposable
 
         ErrorMessage = string.Empty;
 
+        ShowMemoryInfo(info);
+    }
+
+    // Puts a reading on the cards and the usage bar. Used by the Refresh button AND by the
+    // timer, so the cards always show the same newest reading as the graph.
+    private void ShowMemoryInfo(MemoryInfoModel info)
+    {
         TotalMemory = $"{info.TotalGb:F2} GB";
         UsedMemory = $"{info.UsedGb:F2} GB";
         AvailableMemory = $"{info.AvailableGb:F2} GB";
